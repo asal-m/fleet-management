@@ -1,0 +1,2547 @@
+{
+  "info": {
+    "name": "Fleet Operations - Swagger endpoints and interview demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Generated against live OpenAPI. Run all folders in order, one iteration. Development role tokens refresh automatically. Creates fictional records and durable audits; does not delete data. Includes all 18 OpenAPI operations plus health/description and Development token fixture. HTTP collection only; gRPC contracts remain in Api/Protos."
+  },
+  "item": [
+    {
+      "name": "00 - Development tokens",
+      "item": [
+        {
+          "name": "Get FleetManager token (Development only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{identity_url}}/development/token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"FleetManager\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Separate DevelopmentIdentity fixture; this is not a login endpoint of the fleet backend."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Token issued', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const data = pm.response.json(); pm.environment.set('FleetManager_token', data.access_token); pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000)); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Operator token (Development only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{identity_url}}/development/token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Operator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Separate DevelopmentIdentity fixture; this is not a login endpoint of the fleet backend."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Token issued', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const data = pm.response.json(); pm.environment.set('Operator_token', data.access_token); pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000)); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Administrator token (Development only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{identity_url}}/development/token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Administrator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Separate DevelopmentIdentity fixture; this is not a login endpoint of the fleet backend."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Token issued', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const data = pm.response.json(); pm.environment.set('Administrator_token', data.access_token); pm.environment.set('Administrator_expires_at', String(Date.now() + data.expires_in * 1000)); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Health and API description",
+      "item": [
+        {
+          "name": "Readiness",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/health/ready",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "GET /health/ready\nAnonymous request. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Liveness",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/health/live",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "GET /health/live\nAnonymous request. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Startup",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/health/startup",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "GET /health/startup\nAnonymous request. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OpenAPI document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/openapi/v1.json",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "GET /openapi/v1.json\nAnonymous request. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Platform status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/v1/platform/status",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /v1/platform/status\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Register resources",
+      "item": [
+        {
+          "name": "Register a unique Active TRUCK",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{FleetManager_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/fleet/vehicles\nRequired role: FleetManager. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plateNumber\": \"{{demo_plate}}\",\n  \"typeCode\": \"TRUCK\",\n  \"capacityKilograms\": 2000,\n  \"baseStatus\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('FleetManager_token') || Number(pm.environment.get('FleetManager_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'FleetManager'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('FleetManager_token', data.access_token);",
+                  "  pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  "pm.environment.set('demo_plate', 'PM-' + pm.variables.replaceIn('{{$guid}}').replace(/-/g,'').slice(0,20));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "const data = pm.response.json();",
+                  "pm.test('Entity ID returned', () => pm.expect(data.id).to.be.a('string'));",
+                  "pm.environment.set('vehicle_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get registered vehicle",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/{{vehicle_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/{{vehicle_id}}\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register qualified Active driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/drivers",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{FleetManager_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/drivers\nRequired role: FleetManager. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Postman\",\n  \"lastName\": \"Demo\",\n  \"status\": 1,\n  \"qualifications\": [\n    \"TRUCK\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('FleetManager_token') || Number(pm.environment.get('FleetManager_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'FleetManager'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('FleetManager_token', data.access_token);",
+                  "  pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "const data = pm.response.json();",
+                  "pm.test('Entity ID returned', () => pm.expect(data.id).to.be.a('string'));",
+                  "pm.environment.set('driver_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get available vehicles before assignment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo vehicle available', () => pm.expect(pm.response.json().some(v => v.id === pm.environment.get('vehicle_id'))).to.eql(true));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get available drivers before assignment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/drivers/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/drivers/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo driver available', () => pm.expect(pm.response.json().some(d => d.id === pm.environment.get('driver_id'))).to.eql(true));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Mission lifecycle and rejected maintenance",
+      "item": [
+        {
+          "name": "Create Draft mission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Tehran demo\",\n  \"destination\": \"Isfahan demo\",\n  \"requiredCapacityKilograms\": 1000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "const data = pm.response.json();",
+                  "pm.test('Entity ID returned', () => pm.expect(data.id).to.be.a('string'));",
+                  "pm.environment.set('mission_id', data.id);",
+                  "pm.test('Mission status 1', () => pm.expect(pm.response.json().status).to.eql(1));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schedule mission one hour ahead",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{mission_id}}/schedule",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{mission_id}}/schedule\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduledTime\": \"{{scheduled_time}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  "pm.environment.set('scheduled_time', new Date(Date.now() + 3600000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 2', () => pm.expect(pm.response.json().status).to.eql(2));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Assign vehicle and driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{mission_id}}/assign",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{mission_id}}/assign\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"driverId\": \"{{driver_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 3', () => pm.expect(pm.response.json().status).to.eql(3));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get assigned mission",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{mission_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/operations/missions/{{mission_id}}\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 3', () => pm.expect(pm.response.json().status).to.eql(3));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Active missions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/active?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/operations/missions/active?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Assigned mission listed', () => pm.expect(pm.response.json().some(m => m.id === pm.environment.get('mission_id'))).to.eql(true));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get available vehicles after assignment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo vehicle unavailable', () => pm.expect(pm.response.json().some(v => v.id === pm.environment.get('vehicle_id'))).to.eql(false));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Maintenance on reserved vehicle - expected rejection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/{{vehicle_id}}/maintenance/start",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{FleetManager_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/fleet/vehicles/{{vehicle_id}}/maintenance/start\nRequired role: FleetManager. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('FleetManager_token') || Number(pm.environment.get('FleetManager_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'FleetManager'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('FleetManager_token', data.access_token);",
+                  "  pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "if (pm.response.code === 409) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Query rejected maintenance Audit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/administration/audit?entityId={{vehicle_id}}&page=1&size=50",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Administrator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/administration/audit?entityId={{vehicle_id}}&page=1&size=50\nRequired role: Administrator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Administrator_token') || Number(pm.environment.get('Administrator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Administrator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Administrator_token', data.access_token);",
+                  "  pm.environment.set('Administrator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Rejected attempt is audited', () => pm.expect(pm.response.json().items.some(a => a.action === 'MaintenanceStarted' && a.outcome === 1 && a.failure.code === 'VEHICLE_HAS_ACTIVE_MISSION')).to.eql(true));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start mission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{mission_id}}/start",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{mission_id}}/start\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 4', () => pm.expect(pm.response.json().status).to.eql(4));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Complete mission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{mission_id}}/complete",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{mission_id}}/complete\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 5', () => pm.expect(pm.response.json().status).to.eql(5));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get completed mission",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{mission_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/operations/missions/{{mission_id}}\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 5', () => pm.expect(pm.response.json().status).to.eql(5));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get available vehicles after completion",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo vehicle available', () => pm.expect(pm.response.json().some(v => v.id === pm.environment.get('vehicle_id'))).to.eql(true));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Query mission Audit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/administration/audit?entityId={{mission_id}}&page=1&size=50",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Administrator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/administration/audit?entityId={{mission_id}}&page=1&size=50\nRequired role: Administrator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Administrator_token') || Number(pm.environment.get('Administrator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Administrator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Administrator_token', data.access_token);",
+                  "  pm.environment.set('Administrator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "const actions = pm.response.json().items.map(a => a.action);",
+                  "for (const action of ['MissionCreated','MissionAssigned','MissionStarted','MissionCompleted']) pm.test('Audit '+action, () => pm.expect(actions).to.include(action));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Maintenance and vehicle status",
+      "item": [
+        {
+          "name": "Start maintenance after resources are released",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/{{vehicle_id}}/maintenance/start",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{FleetManager_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/fleet/vehicles/{{vehicle_id}}/maintenance/start\nRequired role: FleetManager. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('FleetManager_token') || Number(pm.environment.get('FleetManager_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'FleetManager'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('FleetManager_token', data.access_token);",
+                  "  pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Availability during maintenance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo vehicle unavailable', () => pm.expect(pm.response.json().some(v => v.id === pm.environment.get('vehicle_id'))).to.eql(false));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Complete maintenance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/{{vehicle_id}}/maintenance/complete",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{FleetManager_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/fleet/vehicles/{{vehicle_id}}/maintenance/complete\nRequired role: FleetManager. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('FleetManager_token') || Number(pm.environment.get('FleetManager_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'FleetManager'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('FleetManager_token', data.access_token);",
+                  "  pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change vehicle to Inactive",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/{{vehicle_id}}/status",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{FleetManager_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "PUT /api/fleet/vehicles/{{vehicle_id}}/status\nRequired role: FleetManager. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('FleetManager_token') || Number(pm.environment.get('FleetManager_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'FleetManager'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('FleetManager_token', data.access_token);",
+                  "  pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Availability while Inactive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo vehicle unavailable', () => pm.expect(pm.response.json().some(v => v.id === pm.environment.get('vehicle_id'))).to.eql(false));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change vehicle back to Active",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/{{vehicle_id}}/status",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{FleetManager_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "PUT /api/fleet/vehicles/{{vehicle_id}}/status\nRequired role: FleetManager. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('FleetManager_token') || Number(pm.environment.get('FleetManager_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'FleetManager'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('FleetManager_token', data.access_token);",
+                  "  pm.environment.set('FleetManager_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Availability after activation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo vehicle available', () => pm.expect(pm.response.json().some(v => v.id === pm.environment.get('vehicle_id'))).to.eql(true));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Cancellation lifecycle",
+      "item": [
+        {
+          "name": "Create a second mission for cancellation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Tehran demo\",\n  \"destination\": \"Isfahan demo\",\n  \"requiredCapacityKilograms\": 1000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "const data = pm.response.json();",
+                  "pm.test('Entity ID returned', () => pm.expect(data.id).to.be.a('string'));",
+                  "pm.environment.set('cancel_mission_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schedule second mission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{cancel_mission_id}}/schedule",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{cancel_mission_id}}/schedule\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduledTime\": \"{{scheduled_time}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  "pm.environment.set('scheduled_time', new Date(Date.now() + 3600000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 2', () => pm.expect(pm.response.json().status).to.eql(2));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Assign released resources to second mission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{cancel_mission_id}}/assign",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{cancel_mission_id}}/assign\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"driverId\": \"{{driver_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 3', () => pm.expect(pm.response.json().status).to.eql(3));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel assigned mission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{cancel_mission_id}}/cancel",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{cancel_mission_id}}/cancel\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 6', () => pm.expect(pm.response.json().status).to.eql(6));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get cancelled mission",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{cancel_mission_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/operations/missions/{{cancel_mission_id}}\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Mission status 6', () => pm.expect(pm.response.json().status).to.eql(6));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Availability after cancellation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available?limit=200",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/fleet/vehicles/available?limit=200\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "pm.test('Demo vehicle available', () => pm.expect(pm.response.json().some(v => v.id === pm.environment.get('vehicle_id'))).to.eql(true));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Expected authorization and state failures",
+      "item": [
+        {
+          "name": "No token - expected 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/fleet/vehicles/available",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "GET /api/fleet/vehicles/available\nAnonymous request. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "if (pm.response.code === 401) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Operator cannot read Audit - expected 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/administration/audit?entityId={{mission_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/administration/audit?entityId={{mission_id}}\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "if (pm.response.code === 403) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Completed mission cannot restart - expected 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/operations/missions/{{mission_id}}/start",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "POST /api/operations/missions/{{mission_id}}/start\nRequired role: Operator. Execute folders in order. Variables are populated by previous requests."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "if (pm.response.code === 409) {",
+                  "",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

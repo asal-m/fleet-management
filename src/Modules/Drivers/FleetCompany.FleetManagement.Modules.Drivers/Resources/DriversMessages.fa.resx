@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="drivers.name_invalid" xml:space="preserve">
+    <value>نام اجباری است و پس از حذف فاصلهٔ اطراف باید حداکثر ۱۰۰ کاراکتر باشد.</value>
+  </data>
+  <data name="drivers.status_invalid" xml:space="preserve">
+    <value>وضعیت راننده باید صریحاً فعال یا غیرفعال باشد.</value>
+  </data>
+  <data name="drivers.qualifications_required" xml:space="preserve">
+    <value>حداقل یک صلاحیت معتبر لازم است.</value>
+  </data>
+  <data name="drivers.qualification_code_invalid" xml:space="preserve">
+    <value>کد صلاحیت باید شامل ۱ تا ۵۰ حرف انگلیسی، عدد انگلیسی یا زیرخط باشد.</value>
+  </data>
+  <data name="drivers.limit_invalid">
+    <value>تعداد باید بین ۱ تا ۲۰۰ باشد.</value>
+  </data>
+</root>

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="drivers.name_invalid" xml:space="preserve">
+    <value>Name is required and must contain at most 100 characters after trimming.</value>
+  </data>
+  <data name="drivers.status_invalid" xml:space="preserve">
+    <value>Driver status must explicitly be Active or Inactive.</value>
+  </data>
+  <data name="drivers.qualifications_required" xml:space="preserve">
+    <value>At least one valid qualification is required.</value>
+  </data>
+  <data name="drivers.qualification_code_invalid" xml:space="preserve">
+    <value>Qualification code must contain 1 to 50 English letters, digits or underscores.</value>
+  </data>
+  <data name="drivers.limit_invalid">
+    <value>Limit must be between 1 and 200.</value>
+  </data>
+</root>

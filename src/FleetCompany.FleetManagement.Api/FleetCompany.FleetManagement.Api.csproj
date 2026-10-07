@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <UserSecretsId>fleetcompany-fleetmanagement-local-development</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FleetCompany.FleetManagement.Infrastructure/FleetCompany.FleetManagement.Infrastructure.csproj" />
+    <PackageReference Include="MPCore.Hosting" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Localization" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Messaging.Wolverine" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Security.Abstractions" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Security.AspNetCore" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Tenancy.Abstractions" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Validation.FluentValidation" Version="$(MPCoreVersion)" />
+    <!-- Design-time only: `dotnet ef migrations` with this project as the startup project. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11" PrivateAssets="all" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.83.0" />
+    <PackageReference Include="Grpc.AspNetCore.HealthChecks" Version="2.83.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.83.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.83.0" PrivateAssets="all" />
+    <PackageReference Include="MPCore.Transport.Grpc" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Transport.Http" Version="$(MPCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
+    <PackageReference Include="MPCore.Observability.Prometheus" Version="$(MPCoreVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="Protos/platform_probe.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos/fleet_vehicles.proto" GrpcServices="Both" />
+    <Protobuf Include="Protos/operations_missions.proto" GrpcServices="Both" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Modules\Fleet\FleetCompany.FleetManagement.Modules.Fleet\FleetCompany.FleetManagement.Modules.Fleet.csproj" />
+    <ProjectReference Include="..\Modules\Drivers\FleetCompany.FleetManagement.Modules.Drivers\FleetCompany.FleetManagement.Modules.Drivers.csproj" />
+    <ProjectReference Include="..\Modules\Operations\FleetCompany.FleetManagement.Modules.Operations\FleetCompany.FleetManagement.Modules.Operations.csproj" />
+    <ProjectReference Include="..\Modules\Administration\FleetCompany.FleetManagement.Modules.Administration\FleetCompany.FleetManagement.Modules.Administration.csproj" />
+  </ItemGroup>
+</Project>

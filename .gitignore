@@ -1,0 +1,23 @@
+**/bin/
+**/obj/
+.idea/
+.vs/
+.scratch/
+*.user
+*.suo
+.env
+.env.*
+*.pem
+*.pfx
+TestResults/
+*.trx
+
+# Local documentation and training material are not part of the code submission.
+docs/
+postman/
+*.md
+*.zip
+.agents/
+.mpcore/skills/
+.claude/
+.vscode/

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="operations.location_invalid" xml:space="preserve">
+    <value>مکان اجباری است و پس از حذف فاصلهٔ اطراف باید حداکثر ۵۰۰ کاراکتر باشد.</value>
+  </data>
+  <data name="operations.capacity_invalid" xml:space="preserve">
+    <value>بار موردنیاز باید عدد صحیح مثبت برحسب کیلوگرم باشد.</value>
+  </data>
+  <data name="operations.state_invalid" xml:space="preserve">
+    <value>وضعیت فعلی مأموریت اجازهٔ این عملیات را نمی‌دهد.</value>
+  </data>
+  <data name="operations.scheduled_time_not_future" xml:space="preserve">
+    <value>زمان برنامه‌ریزی باید در آینده باشد.</value>
+  </data>
+  <data name="operations.resource_id_invalid" xml:space="preserve">
+    <value>شناسه‌های خودرو و راننده نباید خالی باشند.</value>
+  </data>
+  <data name="operations.reassignment_forbidden" xml:space="preserve">
+    <value>خودرو و رانندهٔ تخصیص‌یافته قابل تعویض نیستند.</value>
+  </data>
+  <data name="operations.mission_not_found" xml:space="preserve">
+    <value>مأموریت پیدا نشد.</value>
+  </data>
+  <data name="operations.limit_invalid">
+    <value>تعداد باید بین ۱ تا ۲۰۰ باشد.</value>
+  </data>
+  <data name="operations.mission_id_invalid">
+    <value>شناسهٔ مأموریت باید معتبر و غیرخالی باشد.</value>
+  </data>
+  <data name="operations.scheduled_time_invalid">
+    <value>زمان برنامه‌ریزی باید ISO 8601 با منطقهٔ زمانی صریح باشد.</value>
+  </data>
+  <data name="operations.vehicle_not_found">
+    <value>خودرو پیدا نشد.</value>
+  </data>
+  <data name="operations.driver_not_found">
+    <value>راننده پیدا نشد.</value>
+  </data>
+  <data name="operations.vehicle_inactive">
+    <value>خودرو غیرفعال است.</value>
+  </data>
+  <data name="operations.vehicle_under_maintenance">
+    <value>خودرو در حال تعمیر است.</value>
+  </data>
+  <data name="operations.insufficient_vehicle_capacity">
+    <value>ظرفیت خودرو کافی نیست.</value>
+  </data>
+  <data name="operations.vehicle_already_reserved">
+    <value>خودرو قبلاً رزرو شده است.</value>
+  </data>
+  <data name="operations.driver_inactive">
+    <value>راننده غیرفعال است.</value>
+  </data>
+  <data name="operations.driver_already_reserved">
+    <value>راننده قبلاً رزرو شده است.</value>
+  </data>
+  <data name="operations.driver_unqualified">
+    <value>راننده برای این نوع خودرو صلاحیت ندارد.</value>
+  </data>
+</root>

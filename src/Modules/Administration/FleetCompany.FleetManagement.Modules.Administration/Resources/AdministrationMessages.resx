@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="administration.page_invalid" xml:space="preserve"><value>Page must be a positive integer.</value></data>
+  <data name="administration.size_invalid" xml:space="preserve"><value>Page size must be between 1 and 200.</value></data>
+  <data name="administration.entity_id_invalid" xml:space="preserve"><value>Entity identifier must not exceed 100 characters.</value></data>
+</root>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="fleet.maintenance_already_started" xml:space="preserve">
+    <value>خودرو تعمیر جاری دارد و شروع تعمیر دوم مجاز نیست.</value>
+  </data>
+  <data name="fleet.maintenance_not_started" xml:space="preserve">
+    <value>خودرو تعمیر جاری ندارد که تکمیل شود.</value>
+  </data>
+  <data name="fleet.plate_number_invalid" xml:space="preserve">
+    <value>پلاک اجباری است و پس از یکسان‌سازی نباید بیش از ۳۰ نویسه باشد.</value>
+  </data>
+  <data name="fleet.vehicle_base_status_invalid" xml:space="preserve">
+    <value>وضعیت پایهٔ خودرو باید فعال یا غیرفعال باشد.</value>
+  </data>
+  <data name="fleet.vehicle_capacity_must_be_positive" xml:space="preserve">
+    <value>ظرفیت خودرو باید عدد صحیح مثبت برحسب کیلوگرم باشد.</value>
+  </data>
+  <data name="fleet.vehicle_type_code_invalid" xml:space="preserve">
+    <value>کد نوع خودرو باید بین ۱ تا ۵۰ نویسه و شامل حروف انگلیسی، عدد یا زیرخط باشد.</value>
+  </data>
+  <data name="fleet.plate_number_already_registered" xml:space="preserve">
+    <value>این پلاک قبلاً ثبت شده است.</value>
+  </data>
+  <data name="fleet.vehicle_not_found" xml:space="preserve">
+    <value>خودرو پیدا نشد.</value>
+  </data>
+  <data name="fleet.vehicle_id_invalid" xml:space="preserve">
+    <value>شناسهٔ خودرو باید Guid معتبر باشد.</value>
+  </data>
+  <data name="fleet.limit_invalid">
+    <value>تعداد باید بین ۱ تا ۲۰۰ باشد.</value>
+  </data>
+  <data name="fleet.vehicle_has_active_mission">
+    <value>خودرو رزرو مأموریت فعال دارد.</value>
+  </data>
+</root>

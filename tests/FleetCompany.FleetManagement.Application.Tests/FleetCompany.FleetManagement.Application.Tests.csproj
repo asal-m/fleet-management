@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" PrivateAssets="all" />
+    <ProjectReference Include="../../src/Modules/Fleet/FleetCompany.FleetManagement.Modules.Fleet/FleetCompany.FleetManagement.Modules.Fleet.csproj" />
+    <ProjectReference Include="../../src/Modules/Drivers/FleetCompany.FleetManagement.Modules.Drivers/FleetCompany.FleetManagement.Modules.Drivers.csproj" />
+    <ProjectReference Include="../../src/Modules/Operations/FleetCompany.FleetManagement.Modules.Operations/FleetCompany.FleetManagement.Modules.Operations.csproj" />
+    <ProjectReference Include="../../src/Modules/Administration/FleetCompany.FleetManagement.Modules.Administration/FleetCompany.FleetManagement.Modules.Administration.csproj" />
+  </ItemGroup>
+</Project>

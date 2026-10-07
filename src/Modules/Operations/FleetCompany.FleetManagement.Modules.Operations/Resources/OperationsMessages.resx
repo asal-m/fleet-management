@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="operations.location_invalid" xml:space="preserve">
+    <value>Location is required and must not exceed 500 characters after trimming.</value>
+  </data>
+  <data name="operations.capacity_invalid" xml:space="preserve">
+    <value>Required capacity must be a positive integer number of kilograms.</value>
+  </data>
+  <data name="operations.state_invalid" xml:space="preserve">
+    <value>The current Mission state does not allow this operation.</value>
+  </data>
+  <data name="operations.scheduled_time_not_future" xml:space="preserve">
+    <value>Scheduled time must be in the future.</value>
+  </data>
+  <data name="operations.resource_id_invalid" xml:space="preserve">
+    <value>Vehicle and Driver identifiers must not be empty.</value>
+  </data>
+  <data name="operations.reassignment_forbidden" xml:space="preserve">
+    <value>Assigned Vehicle and Driver cannot be changed.</value>
+  </data>
+  <data name="operations.mission_not_found" xml:space="preserve">
+    <value>Mission was not found.</value>
+  </data>
+  <data name="operations.limit_invalid">
+    <value>Limit must be between 1 and 200.</value>
+  </data>
+  <data name="operations.mission_id_invalid">
+    <value>Mission ID must be a valid nonempty GUID.</value>
+  </data>
+  <data name="operations.scheduled_time_invalid">
+    <value>Scheduled time must be an ISO 8601 timestamp with an explicit offset.</value>
+  </data>
+  <data name="operations.vehicle_not_found">
+    <value>Vehicle was not found.</value>
+  </data>
+  <data name="operations.driver_not_found">
+    <value>Driver was not found.</value>
+  </data>
+  <data name="operations.vehicle_inactive">
+    <value>Vehicle is inactive.</value>
+  </data>
+  <data name="operations.vehicle_under_maintenance">
+    <value>Vehicle is under maintenance.</value>
+  </data>
+  <data name="operations.insufficient_vehicle_capacity">
+    <value>Vehicle capacity is insufficient.</value>
+  </data>
+  <data name="operations.vehicle_already_reserved">
+    <value>Vehicle is already reserved.</value>
+  </data>
+  <data name="operations.driver_inactive">
+    <value>Driver is inactive.</value>
+  </data>
+  <data name="operations.driver_already_reserved">
+    <value>Driver is already reserved.</value>
+  </data>
+  <data name="operations.driver_unqualified">
+    <value>Driver is not qualified for this vehicle type.</value>
+  </data>
+</root>

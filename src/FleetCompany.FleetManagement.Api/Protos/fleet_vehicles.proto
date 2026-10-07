@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option csharp_namespace = "FleetCompany.FleetManagement.Api.Grpc.Fleet";
+package fleetcompany.fleetmanagement.fleet.v1;
+
+service FleetVehicles {
+  rpc GetVehicle (GetVehicleRequest) returns (GetVehicleReply);
+  rpc GetAvailableVehicles (GetAvailableVehiclesRequest) returns (GetAvailableVehiclesReply);
+}
+
+message GetVehicleRequest {
+  string id = 1;
+}
+message GetAvailableVehiclesRequest { optional int32 limit = 1; }
+message GetAvailableVehiclesReply { repeated VehicleDetails vehicles = 1; }
+
+message GetVehicleReply {
+  VehicleDetails vehicle = 1;
+}
+
+message VehicleDetails {
+  string id = 1;
+  string plate_number = 2;
+  string type_code = 3;
+  int32 capacity_kilograms = 4;
+  VehicleBaseState base_status = 5;
+  VehicleOperationalState operational_status = 6;
+  bool is_under_maintenance = 7;
+}
+
+enum VehicleBaseState {
+  VEHICLE_BASE_STATE_UNSPECIFIED = 0;
+  VEHICLE_BASE_STATE_ACTIVE = 1;
+  VEHICLE_BASE_STATE_INACTIVE = 2;
+}
+
+enum VehicleOperationalState {
+  VEHICLE_OPERATIONAL_STATE_UNSPECIFIED = 0;
+  VEHICLE_OPERATIONAL_STATE_ACTIVE = 1;
+  VEHICLE_OPERATIONAL_STATE_INACTIVE = 2;
+  VEHICLE_OPERATIONAL_STATE_UNDER_MAINTENANCE = 3;
+}

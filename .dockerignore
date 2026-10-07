@@ -1,0 +1,7 @@
+**/bin
+**/obj
+.scratch
+.git
+.idea
+**/*.user
+**/.env

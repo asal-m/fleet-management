@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+ <ItemGroup><PackageReference Include="MPCore.Application" Version="$(MPCoreVersion)" /><PackageReference Include="MPCore.Audit.Abstractions" Version="$(MPCoreVersion)" /><PackageReference Include="MPCore.Validation.FluentValidation" Version="$(MPCoreVersion)" /></ItemGroup>
+</Project>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <!-- One reference per bounded-context module, so AppDbContext can apply its mappings:
+         <ProjectReference Include="../Modules/Billing/FleetCompany.FleetManagement.Modules.Billing/FleetCompany.FleetManagement.Modules.Billing.csproj" />
+         See src/Modules/README.md. -->
+    <PackageReference Include="MPCore.Caching.Hybrid" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Persistence.EntityFrameworkCore.PostgreSql" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Messaging.Wolverine" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Resilience.Http" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Audit.EntityFrameworkCore.PostgreSql" Version="$(MPCoreVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Modules\Fleet\FleetCompany.FleetManagement.Modules.Fleet\FleetCompany.FleetManagement.Modules.Fleet.csproj" />
+    <ProjectReference Include="..\Modules\Drivers\FleetCompany.FleetManagement.Modules.Drivers\FleetCompany.FleetManagement.Modules.Drivers.csproj" />
+    <ProjectReference Include="..\Modules\Operations\FleetCompany.FleetManagement.Modules.Operations\FleetCompany.FleetManagement.Modules.Operations.csproj" />
+    <ProjectReference Include="..\Modules\Administration\FleetCompany.FleetManagement.Modules.Administration\FleetCompany.FleetManagement.Modules.Administration.csproj" />
+  </ItemGroup>
+  <ItemGroup><ProjectReference Include="../Shared/FleetCompany.FleetManagement.Contracts/FleetCompany.FleetManagement.Contracts.csproj" /></ItemGroup>
+</Project>

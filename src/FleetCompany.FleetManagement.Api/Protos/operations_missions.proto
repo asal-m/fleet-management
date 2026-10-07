@@ -1,0 +1,31 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+option csharp_namespace = "FleetCompany.FleetManagement.Api.Grpc.Operations";
+package fleetcompany.fleetmanagement.operations.v1;
+service OperationsMissions {
+ rpc GetMission(GetMissionRequest) returns(GetMissionReply);
+ rpc GetActiveMissions(GetActiveMissionsRequest) returns(GetActiveMissionsReply);
+}
+message GetMissionRequest { string id = 1; }
+message GetMissionReply { MissionDetails mission = 1; }
+message GetActiveMissionsRequest { optional int32 limit = 1; }
+message GetActiveMissionsReply { repeated MissionDetails missions = 1; }
+message MissionDetails {
+ string id = 1;
+ string origin = 2;
+ string destination = 3;
+ int32 required_capacity_kilograms = 4;
+ MissionState status = 5;
+ google.protobuf.Timestamp scheduled_time = 6;
+ optional string assigned_vehicle_id = 7;
+ optional string assigned_driver_id = 8;
+}
+enum MissionState {
+ MISSION_STATE_UNSPECIFIED = 0;
+ MISSION_STATE_DRAFT = 1;
+ MISSION_STATE_SCHEDULED = 2;
+ MISSION_STATE_ASSIGNED = 3;
+ MISSION_STATE_IN_PROGRESS = 4;
+ MISSION_STATE_COMPLETED = 5;
+ MISSION_STATE_CANCELLED = 6;
+}

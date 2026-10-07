@@ -1,0 +1,72 @@
+name: fleetmanagement-local
+services:
+  bootstrap:
+    build:
+      context: .
+      dockerfile: tools/ComposeBootstrap/Dockerfile
+    environment:
+      # Optional one-time import of an existing local installation. Fresh clones need none.
+      FLEET_POSTGRES_USER: ${FLEET_POSTGRES_USER:-}
+      FLEET_POSTGRES_PASSWORD: ${FLEET_POSTGRES_PASSWORD:-}
+      FLEET_REDIS_PASSWORD: ${FLEET_REDIS_PASSWORD:-}
+      FLEET_RUNTIME_POSTGRES_PASSWORD: ${FLEET_RUNTIME_POSTGRES_PASSWORD:-}
+    volumes: ["fleet-configuration:/run/fleet"]
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fleet_management
+      POSTGRES_USER_FILE: /run/fleet/postgres-user
+      POSTGRES_PASSWORD_FILE: /run/fleet/postgres-password
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["fleet-postgres:/var/lib/postgresql/data", "fleet-configuration:/run/fleet:ro"]
+    depends_on:
+      bootstrap: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$(cat /run/fleet/postgres-user)\" -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    user: "1654:1654"
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$(cat /run/fleet/redis-password)\" --dir /tmp --save '' --appendonly no"]
+    volumes: ["fleet-configuration:/run/fleet:ro"]
+    depends_on:
+      bootstrap: {condition: service_completed_successfully}
+    ports: ["127.0.0.1:56379:6379"]
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$(cat /run/fleet/redis-password)\" redis-cli ping | grep -q PONG"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  identity:
+    build:
+      context: .
+      dockerfile: tools/DevelopmentIdentity/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Identity__Issuer: http://identity:8080
+      Identity__Audience: fleet-management
+    ports: ["127.0.0.1:55480:8080"]
+    volumes: ["fleet-identity:/data"]
+  application:
+    build: .
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Security__Authority: http://identity:8080
+      Security__Audiences__0: fleet-management
+      Security__RequireHttpsMetadata: "false"
+      LocalEnvironment__ConfigurationFile: /run/fleet/appsettings.local.json
+      Database__ApplyMigrations: "true"
+      Observability__Metrics__Prometheus__Enabled: "true"
+    depends_on:
+      bootstrap: {condition: service_completed_successfully}
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      identity: {condition: service_started}
+    ports: ["127.0.0.1:8080:8080", "127.0.0.1:8081:8081"]
+    volumes: ["fleet-configuration:/run/fleet:ro"]
+volumes:
+  fleet-postgres:
+  fleet-identity:
+  fleet-configuration:

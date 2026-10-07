@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="fleet.maintenance_already_started" xml:space="preserve">
+    <value>The vehicle already has ongoing maintenance.</value>
+  </data>
+  <data name="fleet.maintenance_not_started" xml:space="preserve">
+    <value>The vehicle has no ongoing maintenance to complete.</value>
+  </data>
+  <data name="fleet.plate_number_invalid" xml:space="preserve">
+    <value>Plate number is required and must not exceed 30 characters after normalization.</value>
+  </data>
+  <data name="fleet.vehicle_base_status_invalid" xml:space="preserve">
+    <value>Vehicle base status must be Active or Inactive.</value>
+  </data>
+  <data name="fleet.vehicle_capacity_must_be_positive" xml:space="preserve">
+    <value>Vehicle capacity must be a positive number of kilograms.</value>
+  </data>
+  <data name="fleet.vehicle_type_code_invalid" xml:space="preserve">
+    <value>Vehicle type code must contain 1 to 50 English letters, digits or underscores.</value>
+  </data>
+  <data name="fleet.plate_number_already_registered" xml:space="preserve">
+    <value>This plate number is already registered.</value>
+  </data>
+  <data name="fleet.vehicle_not_found" xml:space="preserve">
+    <value>Vehicle was not found.</value>
+  </data>
+  <data name="fleet.vehicle_id_invalid" xml:space="preserve">
+    <value>Vehicle ID must be a valid GUID.</value>
+  </data>
+  <data name="fleet.limit_invalid">
+    <value>Limit must be between 1 and 200.</value>
+  </data>
+  <data name="fleet.vehicle_has_active_mission">
+    <value>Vehicle has an active Mission reservation.</value>
+  </data>
+</root>

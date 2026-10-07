@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 4,
+  "organization": "FleetCompany",
+  "component": "FleetManagement",
+  "productName": "FleetCompany.FleetManagement",
+  "shape": "modular-monolith",
+  "messaging": "none",
+  "transport": "both",
+  "businessAudit": "postgresql",
+  "cache": "hybrid",
+  "timeseries": "none",
+  "aiTooling": "codex",
+  "mpcoreVersion": "0.9.3",
+  "templateVersion": "0.9.3",
+  "cliVersion": "0.9.3",
+  "generatedAtUtc": "2026-10-04T06:30:44.6520176+00:00"
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MPCore.Domain" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Application" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Persistence.Abstractions" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Persistence.EntityFrameworkCore.PostgreSql" Version="$(MPCoreVersion)" />
+    <PackageReference Include="MPCore.Validation.FluentValidation" Version="$(MPCoreVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../Shared/FleetCompany.FleetManagement.Contracts/FleetCompany.FleetManagement.Contracts.csproj" />
+    <ProjectReference Include="../FleetCompany.FleetManagement.Modules.Drivers.Contracts/FleetCompany.FleetManagement.Modules.Drivers.Contracts.csproj" />
+    <ProjectReference Include="../../Operations/FleetCompany.FleetManagement.Modules.Operations.Contracts/FleetCompany.FleetManagement.Modules.Operations.Contracts.csproj" />
+    <PackageReference Include="MPCore.Audit.Abstractions" Version="$(MPCoreVersion)" />
+  </ItemGroup>
+</Project>

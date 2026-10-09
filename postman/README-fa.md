@@ -55,18 +55,18 @@ docker compose logs --tail 100 application
 |---|---|
 | 00 | دریافت token جدا برای FleetManager، Operator و Administrator از fixture Development |
 | 01 | Health، سند OpenAPI و Platform status |
-| 02 | ثبت خودروی TRUCK و رانندهٔ واجد صلاحیت؛ ذخیرهٔ شناسه‌ها؛ availability |
+| 02 | ثبت منابع، بررسی Location راننده، GET جزئیات راننده و 404 برای شناسهٔ ناموجود؛ availability |
 | 03 | Create → Schedule → Assign → Start → Complete؛ تعمیر خودروی رزروشده رد می‌شود و Audit آن خوانده می‌شود |
 | 04 | شروع/پایان تعمیر، Inactive/Active کردن خودرو و بررسی availability |
 | 05 | ایجاد مأموریت دوم، تخصیص منابع و Cancel؛ آزادشدن منابع |
 | 06 | پاسخ‌های مورد انتظار 401، 403، 409 و 422 |
 
-درخواست‌های منفی با 401/403/409/422 عمداً موفقیت HTTP ندارند؛ **پاس‌شدن Test** معیار
+درخواست‌های منفی با 401/403/404/409/422 عمداً موفقیت HTTP ندارند؛ **پاس‌شدن Test** معیار
 صحت آن‌هاست. این پاسخ‌ها در سناریوی منفی خطای کالکشن نیستند.
 
 نام درخواست‌ها انگلیسی است تا method/operation هنگام ارائه مشخص باشد.
 در Body، مقادیر ثابت نمونه هستند؛ baseStatus/status راننده Active=1 و Inactive=2.
-Mission: Draft=1، Scheduled=2، Assigned=3، InProgress=4، Completed=5، Cancelled=6.
+پاسخ وضعیت‌ها نام‌دار است: Active/Inactive برای راننده و Draft، Scheduled، Assigned، InProgress، Completed، Cancelled برای مأموریت.
 scheduled_time در Pre-request خودکار یک ساعت بعد از زمان فعلی UTC ساخته می‌شود.
 پلاک خودکار یکتا است تا اجرای دوبارهٔ Runner duplicate نسازد.
 
@@ -89,7 +89,7 @@ Queryهای فهرست limit=200 دارند؛ assertion حضور entity نمون
 
 ## Debug در Rider
 
-برای این محیط، راهنمای [Rider و مصاحبه](../docs/rider-debug-and-interview-fa.md)
+برای این محیط، راهنمای [راه‌اندازی محلی](../docs/local-development.md)
 را اجرا کن. API را در Rider با Debug و identity محلی را روی 18180 روشن کن؛ سپس
 environment را به `Fleet Operations - Rider Local` تغییر بده. identity Docker
 برای API محلی این configuration مناسب نیست چون issuer و signing key متفاوت است.
@@ -114,7 +114,15 @@ gRPC از protoهای `src/FleetCompany.FleetManagement.Api/Protos` استفاد
 در این کالکشن HTTP قرار نگرفته است. Token fixture و Health درخواست‌های کمکی‌اند؛
 endpoint جدیدی به محصول اضافه نشده است.
 
-## شاهد بررسی این تحویل
+## بررسی به‌روزرسانی GetDriver
+
+درخواست GET /api/drivers/{{driver_id}} و حالت 404 به هر دو نسخهٔ کالکشن اضافه
+شده‌اند. پاسخ ثبت راننده نیز از نظر Location بررسی می‌شود. کالکشن‌ها یکسان‌اند
+و JSON و syntax همهٔ scriptها بررسی شده‌اند؛ این به‌روزرسانی در Postman/Newman
+اجرا نشده است. تست Integration موجود، GET از Location و DRIVER_NOT_FOUND را
+در اجرای قبلی مجموعهٔ ۱۷۹تستی تأیید کرده است.
+
+## شاهد بررسی نسخهٔ قبلی
 
 کالکشن با OpenAPI زنده تطبیق داده شد: پوشش ۱۸ عملیات از ۱۸ عملیات.
 درخواست‌ها و Pre-request/Post-response scriptها با یک adapter Node روی API Docker

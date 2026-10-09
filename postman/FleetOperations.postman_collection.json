@@ -2,7 +2,7 @@
   "info": {
     "name": "Fleet Operations - Swagger endpoints and interview demo",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Generated against live OpenAPI. Run all folders in order, one iteration. Development role tokens refresh automatically. Creates fictional records and durable audits; does not delete data. Includes all 18 OpenAPI operations plus health/description and Development token fixture. HTTP collection only; gRPC contracts remain in Api/Protos."
+    "description": "Generated against live OpenAPI. Run all folders in order, one iteration. Development role tokens refresh automatically. Creates fictional records and durable audits; does not delete data. Includes the driver-details GET operation and the existing OpenAPI operations plus health/description and Development token fixture. HTTP collection only; gRPC contracts remain in Api/Protos."
   },
   "item": [
     {
@@ -540,7 +540,133 @@
                   "const data = pm.response.json();",
                   "pm.test('Entity ID returned', () => pm.expect(data.id).to.be.a('string'));",
                   "pm.environment.set('driver_id', data.id);",
+                  "pm.test('Driver Location points to GET resource', () => pm.expect(pm.response.headers.get('Location')).to.match(new RegExp('/api/drivers/' + data.id + '$')));",
                   "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get registered driver",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/drivers/{{driver_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/drivers/{id}\nRequired role: FleetManager or Operator. Reads the driver created by the preceding registration request."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "const data = pm.response.json();",
+                  "pm.test('Registered driver ID', () => pm.expect(data.id).to.eql(pm.environment.get('driver_id')));",
+                  "pm.test('Named driver status Active', () => pm.expect(data.status).to.eql('Active'));",
+                  "pm.test('Driver first name', () => pm.expect(data.firstName).to.be.a('string').and.not.empty);",
+                  "pm.test('Driver last name', () => pm.expect(data.lastName).to.be.a('string').and.not.empty);",
+                  "pm.test('Driver qualification TRUCK', () => pm.expect(data.qualifications).to.include('TRUCK'));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get missing driver returns 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": "{{base_url}}/api/drivers/{{$guid}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{Operator_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "GET /api/drivers/{id}\nRequired role: Operator. A fresh random ID must produce DRIVER_NOT_FOUND."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('identity_url')) throw new Error('Select Docker Local or Rider Local environment.');",
+                  "if (!pm.environment.get('Operator_token') || Number(pm.environment.get('Operator_expires_at') || 0) < Date.now() + 30000) {",
+                  " pm.sendRequest({url: pm.environment.get('identity_url') + '/development/token', method:'POST',header:{'Content-Type':'application/json'},body:{mode:'raw',raw:JSON.stringify({role:'Operator'})}}, (error, response) => {",
+                  "  if (error) throw error;",
+                  "  if (response.code !== 200) throw new Error('Development token failed: ' + response.code);",
+                  "  const data = response.json();",
+                  "  pm.environment.set('Operator_token', data.access_token);",
+                  "  pm.environment.set('Operator_expires_at', String(Date.now() + data.expires_in * 1000));",
+                  " });",
+                  "}",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Driver not-found error identity', () => pm.expect(pm.response.text()).to.include('DRIVER_NOT_FOUND'));"
                 ]
               }
             }
@@ -2481,7 +2607,7 @@
           ]
         },
         {
-          "name": "Completed mission cannot restart - expected 409",
+          "name": "Completed mission cannot restart - expected 422",
           "request": {
             "method": "POST",
             "header": [
@@ -2532,8 +2658,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
-                  "if (pm.response.code === 409) {",
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "if (pm.response.code === 422) {",
                   "",
                   "}"
                 ]

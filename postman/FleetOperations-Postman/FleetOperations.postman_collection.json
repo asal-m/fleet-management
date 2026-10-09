@@ -2481,7 +2481,7 @@
           ]
         },
         {
-          "name": "Completed mission cannot restart - expected 409",
+          "name": "Completed mission cannot restart - expected 422",
           "request": {
             "method": "POST",
             "header": [
@@ -2532,8 +2532,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
-                  "if (pm.response.code === 409) {",
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "if (pm.response.code === 422) {",
                   "",
                   "}"
                 ]

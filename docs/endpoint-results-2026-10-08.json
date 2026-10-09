@@ -1,0 +1,562 @@
+﻿[
+    {
+        "method":  "GET",
+        "path":  "/v1/platform/status",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/available",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/available",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "PUT",
+        "path":  "/api/fleet/vehicles/678f830a-9fa8-4474-96cd-627e0ddb776d/status",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "PUT",
+        "path":  "/api/fleet/vehicles/678f830a-9fa8-4474-96cd-627e0ddb776d/status",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles/3d96d374-9432-4f51-9ce4-8fdc3a42fdb4/maintenance/start",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles/3d96d374-9432-4f51-9ce4-8fdc3a42fdb4/maintenance/start",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles/eab6f59e-d17d-4d12-a816-a0458e1760fc/maintenance/complete",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles/eab6f59e-d17d-4d12-a816-a0458e1760fc/maintenance/complete",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/0562494d-1c18-4365-b0b2-55d8b96ecdf3",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/0562494d-1c18-4365-b0b2-55d8b96ecdf3",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/drivers/available",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/drivers/available",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/drivers",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/drivers",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/active",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/active",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/66c90708-73da-4fff-a1b3-262de85316cb/schedule",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/66c90708-73da-4fff-a1b3-262de85316cb/schedule",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/a68a2e52-edec-4f52-be2a-4ae328eebe93/assign",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/a68a2e52-edec-4f52-be2a-4ae328eebe93/assign",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/38399dd3-7aeb-4f17-b48d-c8b706088f8d/start",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/38399dd3-7aeb-4f17-b48d-c8b706088f8d/start",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/1c12679f-788b-4749-bdfd-08b298c5bfb5/complete",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/1c12679f-788b-4749-bdfd-08b298c5bfb5/complete",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/023fae52-9aa1-463c-8476-124592274861/cancel",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/023fae52-9aa1-463c-8476-124592274861/cancel",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/033d4346-b930-40b3-a6ca-7ffc89624b86",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/033d4346-b930-40b3-a6ca-7ffc89624b86",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/administration/audit",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/administration/audit",
+        "scenario":  "wrong role",
+        "expected":  403,
+        "actual":  403,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles/",
+        "scenario":  "success",
+        "expected":  201,
+        "actual":  201,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/01a11a52-2cae-7d98-9a5c-0c5e20e04d40",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/available?limit=200",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "PUT",
+        "path":  "/api/fleet/vehicles/01a11a52-2cae-7d98-9a5c-0c5e20e04d40/status",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "PUT",
+        "path":  "/api/fleet/vehicles/01a11a52-2cae-7d98-9a5c-0c5e20e04d40/status",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles/01a11a52-2cae-7d98-9a5c-0c5e20e04d40/maintenance/start",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/fleet/vehicles/01a11a52-2cae-7d98-9a5c-0c5e20e04d40/maintenance/complete",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/drivers/",
+        "scenario":  "success",
+        "expected":  201,
+        "actual":  201,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/drivers/available?limit=200",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/",
+        "scenario":  "success",
+        "expected":  201,
+        "actual":  201,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/01a11a52-3840-7dac-b679-5c59a42ccf7a",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/active?limit=200",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/01a11a52-3840-7dac-b679-5c59a42ccf7a/schedule",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/01a11a52-3840-7dac-b679-5c59a42ccf7a/assign",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/01a11a52-3840-7dac-b679-5c59a42ccf7a/start",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/01a11a52-3840-7dac-b679-5c59a42ccf7a/complete",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/",
+        "scenario":  "cancel fixture",
+        "expected":  201,
+        "actual":  201,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/01a11a52-3d9d-7670-9c15-884d1f9d6966/cancel",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/administration/audit/?entityId=01a11a52-3840-7dac-b679-5c59a42ccf7a\u0026page=1\u0026size=200",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/v1/platform/status",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/health/live",
+        "scenario":  "operational",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/health/ready",
+        "scenario":  "operational",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/health/startup",
+        "scenario":  "operational",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/openapi/v1.json",
+        "scenario":  "operational",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/openapi-ui/index.html",
+        "scenario":  "operational",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/metrics",
+        "scenario":  "anonymous",
+        "expected":  401,
+        "actual":  401,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/metrics",
+        "scenario":  "success",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/available?limit=0",
+        "scenario":  "validation",
+        "expected":  400,
+        "actual":  400,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/drivers/available?limit=0",
+        "scenario":  "validation",
+        "expected":  400,
+        "actual":  400,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/active?limit=0",
+        "scenario":  "validation",
+        "expected":  400,
+        "actual":  400,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/administration/audit/?page=0",
+        "scenario":  "validation",
+        "expected":  400,
+        "actual":  400,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/fleet/vehicles/242e34d8-801e-4c9d-9442-9515c84746c5",
+        "scenario":  "not found",
+        "expected":  404,
+        "actual":  404,
+        "passed":  true
+    },
+    {
+        "method":  "GET",
+        "path":  "/api/operations/missions/8c4ff004-6c7c-4230-852a-7b436f8cc4ad",
+        "scenario":  "not found",
+        "expected":  404,
+        "actual":  404,
+        "passed":  true
+    },
+    {
+        "method":  "POST",
+        "path":  "/api/operations/missions/01a11a52-3840-7dac-b679-5c59a42ccf7a/cancel",
+        "scenario":  "completed mission conflict",
+        "expected":  409,
+        "actual":  409,
+        "passed":  true
+    },
+    {
+        "method":  "PUT",
+        "path":  "/api/fleet/vehicles/01a11a52-2cae-7d98-9a5c-0c5e20e04d40/status",
+        "scenario":  "fixture retirement",
+        "expected":  200,
+        "actual":  200,
+        "passed":  true
+    }
+]

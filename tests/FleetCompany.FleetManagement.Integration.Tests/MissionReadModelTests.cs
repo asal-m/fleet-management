@@ -5,6 +5,7 @@ using FleetCompany.FleetManagement.Infrastructure.Persistence;
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
 using FleetCompany.FleetManagement.Modules.Operations.Infrastructure.Persistence;
 using Xunit;
+
 namespace FleetCompany.FleetManagement.Integration.Tests;
 
 public sealed class MissionReadModelTests
@@ -23,6 +24,7 @@ public sealed class MissionReadModelTests
                 writer.Set<Mission>().AddRange(missions);
                 await writer.SaveChangesAsync();
             }
+
             await using var reader = CreateDatabase();
             var readModel = new MissionReadModel<AppDbContext>(reader);
             foreach (var expected in missions)
@@ -37,8 +39,10 @@ public sealed class MissionReadModelTests
                 Assert.Equal(expected.ScheduledTime, view.ScheduledTime);
                 Assert.Equal(expected.AssignedVehicleId, view.AssignedVehicleId);
                 Assert.Equal(expected.AssignedDriverId, view.AssignedDriverId);
-                if (view.ScheduledTime.HasValue) Assert.Equal(TimeSpan.Zero, view.ScheduledTime.Value.Offset);
+                if (view.ScheduledTime.HasValue)
+                    Assert.Equal(TimeSpan.Zero, view.ScheduledTime.Value.Offset);
             }
+
             Assert.Null(await readModel.GetAsync(Guid.NewGuid(), default));
             Assert.Empty(reader.ChangeTracker.Entries());
             Assert.Equal(6, await reader.Set<Mission>().CountAsync(x => ids.Contains(x.Id)));
@@ -49,25 +53,34 @@ public sealed class MissionReadModelTests
             await cleanup.Set<Mission>().Where(x => ids.Contains(x.Id)).ExecuteDeleteAsync();
         }
     }
+
     private static Mission Build(MissionStatus status, DateTimeOffset now)
     {
-        var mission = Mission.Create(Guid.CreateVersion7(), MissionLocation.Create("تهران"),
-            MissionLocation.Create("شیراز"), RequiredCapacity.Create(1000));
-        if (status == MissionStatus.Draft) return mission;
+        var mission = Mission.Create(Guid.CreateVersion7(), MissionLocation.Create("تهران"), MissionLocation.Create("شیراز"), RequiredCapacity.Create(1000));
+        if (status == MissionStatus.Draft)
+            return mission;
         mission.Schedule(now.AddHours(1).ToOffset(TimeSpan.FromHours(3.5)), now);
-        if (status == MissionStatus.Scheduled) return mission;
+        if (status == MissionStatus.Scheduled)
+            return mission;
         mission.Assign(Guid.NewGuid(), Guid.NewGuid());
-        if (status == MissionStatus.Assigned) return mission;
-        if (status == MissionStatus.Cancelled) { mission.Cancel(); return mission; }
+        if (status == MissionStatus.Assigned)
+            return mission;
+        if (status == MissionStatus.Cancelled)
+        {
+            mission.Cancel();
+            return mission;
+        }
+
         mission.Start();
-        if (status == MissionStatus.Completed) mission.Complete();
+        if (status == MissionStatus.Completed)
+            mission.Complete();
         return mission;
     }
+
     private static AppDbContext CreateDatabase()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>();
-        PostgreSqlDbContextOptions.Apply(options, Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION")
-            ?? throw new InvalidOperationException("Integration database must be configured explicitly."));
+        PostgreSqlDbContextOptions.Apply(options, Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION") ?? throw new InvalidOperationException("Integration database must be configured explicitly."));
         return new AppDbContext(options.Options, TimeProvider.System, new NullAggregateEventSink());
     }
 }

@@ -1,31 +1,58 @@
-using System.Security.Cryptography;using System.IdentityModel.Tokens.Jwt;using Microsoft.IdentityModel.Tokens;
-var builder=WebApplication.CreateBuilder(args);
-if(!builder.Environment.IsDevelopment()) throw new InvalidOperationException("The local token fixture is Development-only.");
-var issuer=builder.Configuration["Identity:Issuer"]??throw new InvalidOperationException("Identity issuer is required.");
-var audience=builder.Configuration["Identity:Audience"]??throw new InvalidOperationException("Identity audience is required.");
-var dataDirectory=builder.Configuration["Identity:DataDirectory"]??"/data";
+using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+
+var builder = WebApplication.CreateBuilder(args);
+if (!builder.Environment.IsDevelopment())
+    throw new InvalidOperationException("The local token fixture is Development-only.");
+var issuer = builder.Configuration["Identity:Issuer"] ?? throw new InvalidOperationException("Identity issuer is required.");
+var audience = builder.Configuration["Identity:Audience"] ?? throw new InvalidOperationException("Identity audience is required.");
+var dataDirectory = builder.Configuration["Identity:DataDirectory"] ?? "/data";
 Directory.CreateDirectory(dataDirectory);
-var keyFile=Path.Combine(dataDirectory,"signing-key.pem");
-using var rsa=RSA.Create(2048);
-if(File.Exists(keyFile)) rsa.ImportFromPem(File.ReadAllText(keyFile));
-else {File.WriteAllText(keyFile,rsa.ExportPkcs8PrivateKeyPem());if(!OperatingSystem.IsWindows())File.SetUnixFileMode(keyFile,UnixFileMode.UserRead|UnixFileMode.UserWrite);}
-var parameters=rsa.ExportParameters(false);
-var kid=Convert.ToHexString(SHA256.HashData(rsa.ExportSubjectPublicKeyInfo()))[..16];
-var signingKey=new RsaSecurityKey(rsa){KeyId=kid};
-var gate=new object();
-var app=builder.Build();
-app.MapGet("/.well-known/openid-configuration",()=>new{issuer,jwks_uri=issuer.TrimEnd('/')+"/jwks",id_token_signing_alg_values_supported=new[]{"RS256"}});
-app.MapGet("/jwks",()=>new{keys=new[]{new{kty="RSA",use="sig",alg="RS256",kid,n=Base64UrlEncoder.Encode(parameters.Modulus!),e=Base64UrlEncoder.Encode(parameters.Exponent!)}}});
-app.MapGet("/health",()=>Results.Ok());
-app.MapPost("/development/token",(TokenRequest request)=>{
- if(request.Role is not ("Operator" or "FleetManager" or "Administrator"))return Results.BadRequest();
- var now=DateTime.UtcNow;
- var payload=new JwtPayload(issuer,audience,null,now.AddSeconds(-5),now.AddMinutes(5),now);
- payload["sub"]="local-"+request.Role.ToLowerInvariant();payload["preferred_username"]=payload["sub"];
- payload["realm_access"]=new Dictionary<string,object>{{"roles",new[]{request.Role}}};
- string token;
- lock(gate)token=new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(new JwtHeader(new SigningCredentials(signingKey,SecurityAlgorithms.RsaSha256)),payload));
- return Results.Ok(new{access_token=token,token_type="Bearer",expires_in=300});
+var keyFile = Path.Combine(dataDirectory, "signing-key.pem");
+using var rsa = RSA.Create(2048);
+if (File.Exists(keyFile))
+    rsa.ImportFromPem(File.ReadAllText(keyFile));
+else
+{
+    File.WriteAllText(keyFile, rsa.ExportPkcs8PrivateKeyPem());
+    if (!OperatingSystem.IsWindows())
+        File.SetUnixFileMode(keyFile, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+}
+
+var parameters = rsa.ExportParameters(false);
+var kid = Convert.ToHexString(SHA256.HashData(rsa.ExportSubjectPublicKeyInfo()))[..16];
+var signingKey = new RsaSecurityKey(rsa)
+{
+    KeyId = kid
+};
+var gate = new object ();
+var app = builder.Build();
+app.MapGet("/.well-known/openid-configuration", () => new { issuer, jwks_uri = issuer.TrimEnd('/') + "/jwks", id_token_signing_alg_values_supported = new[] { "RS256" } });
+app.MapGet("/jwks", () => new { keys = new[] { new { kty = "RSA", use = "sig", alg = "RS256", kid, n = Base64UrlEncoder.Encode(parameters.Modulus!), e = Base64UrlEncoder.Encode(parameters.Exponent!) } } });
+app.MapGet("/health", () => Results.Ok());
+app.MapPost("/development/token", (TokenRequest request) =>
+{
+    if (request.Role is not ("Operator" or "FleetManager" or "Administrator"))
+        return Results.BadRequest();
+    var now = DateTime.UtcNow;
+    var payload = new JwtPayload(issuer, audience, null, now.AddSeconds(-5), now.AddMinutes(5), now);
+    payload["sub"] = "local-" + request.Role.ToLowerInvariant();
+    payload["preferred_username"] = payload["sub"];
+    payload["realm_access"] = new Dictionary<string, object>
+    {
+        {
+            "roles",
+            new[]
+            {
+                request.Role
+            }
+        }
+    };
+    string token;
+    lock (gate)
+        token = new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(new JwtHeader(new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256)), payload));
+    return Results.Ok(new { access_token = token, token_type = "Bearer", expires_in = 300 });
 });
 await app.RunAsync();
 public sealed record TokenRequest(string Role);

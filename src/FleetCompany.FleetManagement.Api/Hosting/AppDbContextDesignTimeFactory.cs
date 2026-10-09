@@ -5,9 +5,8 @@ using MPCore.Domain.Events;
 using MPCore.Persistence.EntityFrameworkCore.PostgreSql;
 
 namespace FleetCompany.FleetManagement.Api.Hosting;
-
 /// <summary>
-/// Builds <see cref="AppDbContext"/> for the Entity Framework design-time tools, without starting
+/// Builds <see cref = "AppDbContext"/> for the Entity Framework design-time tools, without starting
 /// the application.
 /// </summary>
 /// <remarks>
@@ -41,16 +40,10 @@ public sealed class AppDbContextDesignTimeFactory : IDesignTimeDbContextFactory<
     /// The environment variable naming the database the design-time tools work against.
     /// </summary>
     public const string ConnectionStringVariable = "ConnectionStrings__PostgreSql";
-
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public AppDbContext CreateDbContext(string[] args)
     {
-        var connectionString = Environment.GetEnvironmentVariable(ConnectionStringVariable)
-            ?? throw new InvalidOperationException(
-                $"Set {ConnectionStringVariable} to the database this migration is written against or "
-                + "applied to. appsettings.json ships a placeholder on purpose, so the design-time "
-                + "tools never inherit a connection string by accident.");
-
+        var connectionString = Environment.GetEnvironmentVariable(ConnectionStringVariable) ?? throw new InvalidOperationException($"Set {ConnectionStringVariable} to the database this migration is written against or " + "applied to. appsettings.json ships a placeholder on purpose, so the design-time " + "tools never inherit a connection string by accident.");
         var options = new DbContextOptionsBuilder<AppDbContext>();
         PostgreSqlDbContextOptions.Apply(options, connectionString);
         return new AppDbContext(options.Options, TimeProvider.System, new NullAggregateEventSink());

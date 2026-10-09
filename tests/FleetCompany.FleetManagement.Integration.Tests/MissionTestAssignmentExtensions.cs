@@ -1,4 +1,5 @@
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
+
 namespace FleetCompany.FleetManagement.Integration.Tests;
 // Persistence fixtures only, not the real assignment use case.
 public static class MissionTestAssignmentExtensions

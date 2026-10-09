@@ -5,6 +5,7 @@ using MPCore.Transport.Http;
 using FleetCompany.FleetManagement.Modules.Operations.Application.Commands;
 using FleetCompany.FleetManagement.Modules.Operations.Application.Queries;
 using FleetCompany.FleetManagement.Modules.Operations.Application.Views;
+
 namespace FleetCompany.FleetManagement.Api.Rest.Endpoints;
 
 public static class MissionEndpoints
@@ -14,22 +15,29 @@ public static class MissionEndpoints
         var group = endpoints.MapGroup("/api/operations/missions");
         group.RequireAuthorization(MPCoreAuthorizationPolicies.RequireRole("Operator"));
         group.MapGet("/active", async (int? limit, IMessageBus bus, CancellationToken ct) =>
-            (await bus.InvokeAsync<Result<IReadOnlyList<MissionDetailsView>>>(new GetActiveMissions(limit ?? 50), ct)).ToHttpResult(v => Results.Ok(v)));
+        {
+            return (await bus.InvokeAsync<Result<IReadOnlyList<MissionDetailsView>>>(new GetActiveMissions(limit ?? 50), ct)).ToHttpResult(v => Results.Ok(v));
+        });
         group.MapPost("/{id:guid}/schedule", async (Guid id, ScheduleMissionRequest request, IMessageBus bus, CancellationToken ct) =>
         {
-            if (request.ScheduledTime is null || !System.Text.RegularExpressions.Regex.IsMatch(request.ScheduledTime, @"(Z|[+-]\d{2}:\d{2})$")
-                || !DateTimeOffset.TryParse(request.ScheduledTime, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var time))
-                throw new MPCore.Application.Results.ResultFailureException(FleetCompany.FleetManagement.Modules.Operations.Application.OperationsFailures.InvalidScheduledTime());
-            return (await bus.InvokeAsync<Result<MissionDetailsView>>(new ScheduleMission(id, time), ct)).ToHttpResult(v => Results.Ok(v));
+            return (await bus.InvokeAsync<Result<MissionDetailsView>>(new ScheduleMission(id, request.ScheduledTime), ct)).ToHttpResult(v => Results.Ok(v));
         });
         group.MapPost("/{id:guid}/assign", async (Guid id, AssignMissionRequest request, IMessageBus bus, CancellationToken ct) =>
-            (await bus.InvokeAsync<Result<MissionDetailsView>>(new AssignMission(id, request.VehicleId, request.DriverId), ct)).ToHttpResult(v => Results.Ok(v)));
+        {
+            return (await bus.InvokeAsync<Result<MissionDetailsView>>(new AssignMission(id, request.VehicleId, request.DriverId), ct)).ToHttpResult(v => Results.Ok(v));
+        });
         group.MapPost("/{id:guid}/start", async (Guid id, IMessageBus bus, CancellationToken ct) =>
-            (await bus.InvokeAsync<Result<MissionDetailsView>>(new StartMission(id), ct)).ToHttpResult(v => Results.Ok(v)));
+        {
+            return (await bus.InvokeAsync<Result<MissionDetailsView>>(new StartMission(id), ct)).ToHttpResult(v => Results.Ok(v));
+        });
         group.MapPost("/{id:guid}/complete", async (Guid id, IMessageBus bus, CancellationToken ct) =>
-            (await bus.InvokeAsync<Result<MissionDetailsView>>(new CompleteMission(id), ct)).ToHttpResult(v => Results.Ok(v)));
+        {
+            return (await bus.InvokeAsync<Result<MissionDetailsView>>(new CompleteMission(id), ct)).ToHttpResult(v => Results.Ok(v));
+        });
         group.MapPost("/{id:guid}/cancel", async (Guid id, IMessageBus bus, CancellationToken ct) =>
-            (await bus.InvokeAsync<Result<MissionDetailsView>>(new CancelMission(id), ct)).ToHttpResult(v => Results.Ok(v)));
+        {
+            return (await bus.InvokeAsync<Result<MissionDetailsView>>(new CancelMission(id), ct)).ToHttpResult(v => Results.Ok(v));
+        });
         group.MapPost("/", async (CreateMissionRequest request, IMessageBus bus, CancellationToken cancellationToken) =>
         {
             var command = new CreateMission(request.Origin, request.Destination, request.RequiredCapacityKilograms);
@@ -44,6 +52,7 @@ public static class MissionEndpoints
         return group;
     }
 }
+
 public sealed record CreateMissionRequest(string? Origin, string? Destination, int RequiredCapacityKilograms);
 public sealed record ScheduleMissionRequest(string? ScheduledTime);
 public sealed record AssignMissionRequest(Guid VehicleId, Guid DriverId);

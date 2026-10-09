@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using FleetCompany.FleetManagement.Modules.Operations.Contracts;
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
+
 namespace FleetCompany.FleetManagement.Modules.Operations.Infrastructure.Persistence;
 
 public sealed class ResourceReservations<TContext>(TContext database) : IResourceReservations where TContext : DbContext

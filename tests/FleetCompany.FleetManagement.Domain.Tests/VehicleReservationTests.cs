@@ -14,8 +14,10 @@ public sealed class VehicleReservationTests
         var vehicle = Vehicle.Register(Guid.NewGuid(), PlateNumber.Create("RESERVED"), VehicleTypeCode.Create("TRUCK"), VehicleCapacity.Create(1000), VehicleBaseStatus.Active);
         var error = Assert.Throws<BusinessRuleValidationException>(() =>
         {
-            if (maintenance) vehicle.StartMaintenance(hasActiveReservation: true);
-            else vehicle.ChangeBaseStatus(VehicleBaseStatus.Inactive, hasActiveReservation: true);
+            if (maintenance)
+                vehicle.StartMaintenance(hasActiveReservation: true);
+            else
+                vehicle.ChangeBaseStatus(VehicleBaseStatus.Inactive, hasActiveReservation: true);
         });
         Assert.Equal("VEHICLE_HAS_ACTIVE_MISSION", error.Rule.Code);
         Assert.Equal(VehicleBaseStatus.Active, vehicle.BaseStatus);

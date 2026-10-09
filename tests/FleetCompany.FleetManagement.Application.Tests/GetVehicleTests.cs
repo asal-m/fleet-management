@@ -12,8 +12,7 @@ public sealed class GetVehicleTests
     [Fact]
     public async Task Existing_vehicle_returns_view_and_forwards_cancellation()
     {
-        var view = new VehicleDetailsView(Guid.NewGuid(), "AB-123", "TRUCK", 1000,
-            VehicleBaseStatus.Active, VehicleOperationalStatus.Active, false);
+        var view = new VehicleDetailsView(Guid.NewGuid(), "AB-123", "TRUCK", 1000, VehicleBaseStatus.Active, VehicleOperationalStatus.Active, false);
         var port = new FakeReadModel(view);
         using var cancellation = new CancellationTokenSource();
         var result = await new GetVehicleHandler(port).Handle(new GetVehicle(view.Id), cancellation.Token);
@@ -36,6 +35,7 @@ public sealed class GetVehicleTests
     {
         public Guid RequestedId { get; private set; }
         public CancellationToken Token { get; private set; }
+
         public Task<VehicleDetailsView?> GetAsync(Guid id, CancellationToken cancellationToken)
         {
             RequestedId = id;

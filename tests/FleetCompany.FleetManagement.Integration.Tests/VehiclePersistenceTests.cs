@@ -14,7 +14,7 @@ public sealed class PostgreSqlFactAttribute : FactAttribute
     public PostgreSqlFactAttribute()
     {
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION")))
-            Skip = "Run scripts/Start-LocalDependencies.ps1 -RunTests to test against the isolated Fleet database.";
+            Skip = "PostgreSQL dependency absent. Run dotnet run --project tools/VerifyTests/VerifyTests.csproj --configuration Release for the full suite.";
     }
 }
 
@@ -25,8 +25,7 @@ public sealed class VehiclePersistenceTests
     {
         var token = Guid.NewGuid().ToString("N")[..20];
         var plate = PlateNumber.Create("TEST-" + token);
-        var vehicle = Vehicle.Register(Guid.CreateVersion7(), plate, VehicleTypeCode.Create("TRUCK"),
-            VehicleCapacity.Create(1000), VehicleBaseStatus.Active);
+        var vehicle = Vehicle.Register(Guid.CreateVersion7(), plate, VehicleTypeCode.Create("TRUCK"), VehicleCapacity.Create(1000), VehicleBaseStatus.Active);
         try
         {
             await using (var database = CreateDatabase())
@@ -40,8 +39,7 @@ public sealed class VehiclePersistenceTests
             Assert.Equal(plate, restored.PlateNumber);
             Assert.Equal(1000, restored.Capacity.Kilograms);
             Assert.False(restored.IsUnderMaintenance);
-            Assert.True(await new VehicleRepository<AppDbContext>(reader).PlateExistsAsync(
-                PlateNumber.Create(" test-" + token + " "), default));
+            Assert.True(await new VehicleRepository<AppDbContext>(reader).PlateExistsAsync(PlateNumber.Create(" test-" + token + " "), default));
         }
         finally
         {
@@ -61,8 +59,7 @@ public sealed class VehiclePersistenceTests
             await using var database = CreateDatabase();
             var repository = new VehicleRepository<AppDbContext>(database);
             Assert.False(await repository.PlateExistsAsync(plate, default));
-            repository.Add(Vehicle.Register(Guid.CreateVersion7(), plate, VehicleTypeCode.Create("TRUCK"),
-                VehicleCapacity.Create(1000), VehicleBaseStatus.Active));
+            repository.Add(Vehicle.Register(Guid.CreateVersion7(), plate, VehicleTypeCode.Create("TRUCK"), VehicleCapacity.Create(1000), VehicleBaseStatus.Active));
             if (Interlocked.Increment(ref waiting) == 8)
                 ready.SetResult();
             await ready.Task.WaitAsync(TimeSpan.FromSeconds(30));
@@ -71,9 +68,7 @@ public sealed class VehiclePersistenceTests
                 await database.SaveChangesAsync();
                 return true;
             }
-            catch (DbUpdateException exception) when (exception.InnerException is PostgresException postgres
-                && postgres.SqlState == PostgresErrorCodes.UniqueViolation
-                && postgres.ConstraintName == VehicleConfiguration.PlateUniqueIndex)
+            catch (DbUpdateException exception) when (exception.InnerException is PostgresException postgres && postgres.SqlState == PostgresErrorCodes.UniqueViolation && postgres.ConstraintName == VehicleConfiguration.PlateUniqueIndex)
             {
                 return false;
             }
@@ -95,8 +90,7 @@ public sealed class VehiclePersistenceTests
 
     private static AppDbContext CreateDatabase()
     {
-        var connection = Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION")
-            ?? throw new InvalidOperationException("Integration database must be configured explicitly.");
+        var connection = Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION") ?? throw new InvalidOperationException("Integration database must be configured explicitly.");
         var options = new DbContextOptionsBuilder<AppDbContext>();
         PostgreSqlDbContextOptions.Apply(options, connection);
         // These tests verify EF/PostgreSQL, not Wolverine event delivery or audit middleware.

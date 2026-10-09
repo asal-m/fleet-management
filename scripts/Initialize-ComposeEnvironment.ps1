@@ -2,12 +2,12 @@ $ErrorActionPreference='Stop'
 $fleetDotnet='C:\Program Files\dotnet\dotnet.exe'
 if(-not(Test-Path $fleetDotnet)){$fleetDotnet='dotnet'}
 $secretsOutput=& $fleetDotnet user-secrets list --id fleetcompany-fleetmanagement-local-development --json
-if($LASTEXITCODE -ne 0){throw 'Initialize local secrets with Start-LocalDependencies.ps1 first.'}
+if($LASTEXITCODE -ne 0){throw 'Restore the original User Secrets for the existing database. Fresh installations use docker compose up --build without this import script.'}
 $settings=(($secretsOutput|Where-Object{$_ -notmatch '^//'})-join "`n")|ConvertFrom-Json
 $env:FLEET_POSTGRES_USER=$settings.'LocalDevelopment:PostgreSqlUser'
 $env:FLEET_POSTGRES_PASSWORD=$settings.'LocalDevelopment:PostgreSqlPassword'
 $env:FLEET_REDIS_PASSWORD=$settings.'LocalDevelopment:RedisPassword'
-if(-not $env:FLEET_POSTGRES_USER -or -not $env:FLEET_POSTGRES_PASSWORD -or -not $env:FLEET_REDIS_PASSWORD){throw 'Run Start-LocalDependencies.ps1 to initialize local secrets.'}
+if(-not $env:FLEET_POSTGRES_USER -or -not $env:FLEET_POSTGRES_PASSWORD -or -not $env:FLEET_REDIS_PASSWORD){throw 'Original installation credentials are missing. Restore the original User Secrets for that installation; do not generate replacement passwords for its existing volume.'}
 $runtimePassword=$settings.'LocalDevelopment:RuntimePostgreSqlPassword'
 if(-not $runtimePassword){
  $randomBytes=New-Object byte[] 32

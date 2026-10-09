@@ -1,7 +1,6 @@
 using MPCore.Audit;
 
 namespace FleetCompany.FleetManagement.Infrastructure.Audit;
-
 /// <summary>
 /// Declares which entities and which of their properties the audit trail records. Default deny:
 /// an entity that is not declared here leaves no trace, and a property that is not included is
@@ -21,9 +20,7 @@ public static class AuditPolicyConfiguration
         //
         // Business actions and their outcomes are recorded from handlers through
         // IBusinessAuditRecorder; rejected attempts are written detached from the transaction.
-        policy.Entity<FleetCompany.FleetManagement.Modules.Operations.Domain.Missions.Mission>("operations")
-            .Include(x => x.Status).Include(x => x.ScheduledTime).Include(x => x.AssignedVehicleId).Include(x => x.AssignedDriverId);
-        policy.Entity<FleetCompany.FleetManagement.Modules.Fleet.Domain.Vehicles.Vehicle>("fleet")
-            .Include(x => x.BaseStatus).Include(x => x.IsUnderMaintenance);
+        policy.Entity<FleetCompany.FleetManagement.Modules.Operations.Domain.Missions.Mission>("operations").Include(x => x.Status).Include(x => x.ScheduledTime).Include(x => x.AssignedVehicleId).Include(x => x.AssignedDriverId);
+        policy.Entity<FleetCompany.FleetManagement.Modules.Fleet.Domain.Vehicles.Vehicle>("fleet").Include(x => x.BaseStatus).Include(x => x.IsUnderMaintenance);
     }
 }

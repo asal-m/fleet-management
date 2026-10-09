@@ -1,0 +1,53 @@
+﻿{
+    "schemaVersion":  1,
+    "reportDate":  "2026-10-09",
+    "method":  "EF DbCommandInterceptor; TestServer; fresh PostgreSQL/Redis; Windows .NET 10; local microbenchmark, not production SLO",
+    "baselineRun":  "91bbb41024c24487b8962fc7728e14f8",
+    "afterRun":  "1606a0507da94e439e1376a39c2dfd87",
+    "before":  {
+                   "coldCommands":  5,
+                   "coldMilliseconds":  548.6788,
+                   "warm":  {
+                                "requests":  20,
+                                "databaseCommands":  40,
+                                "meanMilliseconds":  6.969415,
+                                "p95Milliseconds":  8.1977
+                            },
+                   "afterDriverRegistration":  {
+                                                   "requests":  10,
+                                                   "databaseCommands":  40,
+                                                   "meanMilliseconds":  19.304399999999998,
+                                                   "p95Milliseconds":  34.1803
+                                               },
+                   "heldLockMilliseconds":  350,
+                   "eightDriverRequestsCompletedBeforeRelease":  false,
+                   "eightDriverRequestsTotalMilliseconds":  459.5111,
+                   "driverRequestMeanMilliseconds":  424.1539,
+                   "driverRequestP95Milliseconds":  457.4062,
+                   "coordinationSpanCount":  18,
+                   "coordinationWaitP95Milliseconds":  419.7486
+               },
+    "after":  {
+                  "coldCommands":  4,
+                  "coldMilliseconds":  840.9466,
+                  "warm":  {
+                               "requests":  20,
+                               "databaseCommands":  40,
+                               "meanMilliseconds":  15.572669999999999,
+                               "p95Milliseconds":  20.6663
+                           },
+                  "afterDriverRegistration":  {
+                                                  "requests":  10,
+                                                  "databaseCommands":  20,
+                                                  "meanMilliseconds":  10.311069999999999,
+                                                  "p95Milliseconds":  12.9079
+                                              },
+                  "heldLockMilliseconds":  350,
+                  "eightDriverRequestsCompletedBeforeRelease":  true,
+                  "eightDriverRequestsTotalMilliseconds":  354.8353,
+                  "driverRequestMeanMilliseconds":  36.24655,
+                  "driverRequestP95Milliseconds":  37.8204,
+                  "coordinationSpanCount":  0,
+                  "coordinationWaitP95Milliseconds":  0
+              }
+}

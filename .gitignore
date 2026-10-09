@@ -12,11 +12,15 @@
 TestResults/
 *.trx
 
-# Local documentation and training material are not part of the code submission.
-docs/
-*.md
+# Keep the required product documentation and generated Codex procedures.
+# Training material and historical local notes remain outside the submission.
+docs/learning-*.md
+docs/learning-from-zero/
+docs/translations/
+docs/*-history.md
+docs/template-readme.md
+docs/interview-guide-fa.md
+docs/rider-debug-and-interview-fa.md
 *.zip
-.agents/
-.mpcore/skills/
 .claude/
 .vscode/

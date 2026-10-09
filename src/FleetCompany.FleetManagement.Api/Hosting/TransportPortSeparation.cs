@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 
 namespace FleetCompany.FleetManagement.Api.Hosting;
-
 /// <summary>
 /// Binds an endpoint to the Kestrel listener it may be served from.
 /// </summary>
@@ -15,7 +14,7 @@ namespace FleetCompany.FleetManagement.Api.Hosting;
 /// receives <c>404</c> for every endpoint, health probes included.
 /// </para>
 /// <para>
-/// <see cref="HttpContext.Connection"/><c>.LocalPort</c> is the port of the accepting socket. It is
+/// <see cref = "HttpContext.Connection"/><c>.LocalPort</c> is the port of the accepting socket. It is
 /// server state, not request content, so it cannot be forged by a header and is unaffected by
 /// whatever the gateway rewrites <c>Host</c> to.
 /// </para>
@@ -24,18 +23,17 @@ public static class TransportPortSeparation
 {
     /// <summary>
     /// Declares that the endpoints produced by this builder may be served only from the supplied
-    /// listener port. <see cref="UseTransportPortSeparation"/> enforces the declaration.
+    /// listener port. <see cref = "UseTransportPortSeparation"/> enforces the declaration.
     /// </summary>
-    /// <typeparam name="TBuilder">The endpoint convention builder type.</typeparam>
-    /// <param name="builder">The endpoint convention builder.</param>
-    /// <param name="port">The Kestrel listener port the endpoints belong to.</param>
+    /// <typeparam name = "TBuilder">The endpoint convention builder type.</typeparam>
+    /// <param name = "builder">The endpoint convention builder.</param>
+    /// <param name = "port">The Kestrel listener port the endpoints belong to.</param>
     public static TBuilder RequireListenerPort<TBuilder>(this TBuilder builder, int port)
         where TBuilder : IEndpointConventionBuilder
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentOutOfRangeException.ThrowIfLessThan(port, 1);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(port, 65535);
-
         builder.Add(endpoint => endpoint.Metadata.Add(new ListenerPortMetadata(port)));
         return builder;
     }
@@ -44,7 +42,7 @@ public static class TransportPortSeparation
     /// Rejects a request that reached an endpoint through a listener the endpoint is not bound to.
     /// It must be registered after <c>UseRouting</c>, because it reads the resolved endpoint.
     /// </summary>
-    /// <param name="app">The application builder.</param>
+    /// <param name = "app">The application builder.</param>
     public static IApplicationBuilder UseTransportPortSeparation(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
@@ -53,7 +51,7 @@ public static class TransportPortSeparation
 }
 
 /// <summary>Marks an endpoint as belonging to one Kestrel listener port.</summary>
-/// <param name="port">The listener port.</param>
+/// <param name = "port">The listener port.</param>
 public sealed class ListenerPortMetadata(int port)
 {
     /// <summary>Gets the listener port the endpoint is bound to.</summary>
@@ -61,17 +59,14 @@ public sealed class ListenerPortMetadata(int port)
 }
 
 /// <summary>
-/// Enforces <see cref="ListenerPortMetadata"/>. A mismatch produces a bare <c>404</c>, matching the
+/// Enforces <see cref = "ListenerPortMetadata"/>. A mismatch produces a bare <c>404</c>, matching the
 /// observable behavior of an unmatched route and disclosing nothing about the other listener.
 /// </summary>
-internal sealed class TransportPortSeparationMiddleware(
-    RequestDelegate next,
-    ILogger<TransportPortSeparationMiddleware> logger)
+internal sealed class TransportPortSeparationMiddleware(RequestDelegate next, ILogger<TransportPortSeparationMiddleware> logger)
 {
     public Task InvokeAsync(HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-
         var required = context.GetEndpoint()?.Metadata.GetMetadata<ListenerPortMetadata>();
         if (required is null)
         {
@@ -92,11 +87,7 @@ internal sealed class TransportPortSeparationMiddleware(
             return next(context);
         }
 
-        logger.LogWarning(
-            "Rejected a request for an endpoint bound to port {RequiredPort} that arrived on listener port {LocalPort}.",
-            required.Port,
-            localPort);
-
+        logger.LogWarning("Rejected a request for an endpoint bound to port {RequiredPort} that arrived on listener port {LocalPort}.", required.Port, localPort);
         context.Response.Clear();
         context.Response.StatusCode = StatusCodes.Status404NotFound;
         return Task.CompletedTask;

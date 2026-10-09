@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using FleetCompany.FleetManagement.Modules.Operations.Application.Ports;
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
+
 namespace FleetCompany.FleetManagement.Modules.Operations.Infrastructure.Persistence;
 
 public sealed class MissionRepository<TContext>(TContext database) : IMissionRepository where TContext : DbContext

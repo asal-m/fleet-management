@@ -1,0 +1,14 @@
+# Optional Development trace collector/viewer; memory storage, no broker or credentials.
+services:
+  jaeger:
+    image: jaegertracing/jaeger:2.21.0
+    profiles: [observability]
+    ports:
+      - "127.0.0.1:${FLEET_TRACE_UI_PORT:-16686}:16686"
+      - "127.0.0.1:${FLEET_TRACE_OTLP_PORT:-14317}:4317"
+    mem_limit: 256m
+  application:
+    environment:
+      Observability__Traces__Exporter: Otlp
+      Observability__Traces__Endpoint: http://jaeger:4317
+      Observability__Traces__Protocol: Grpc

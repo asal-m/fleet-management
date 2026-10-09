@@ -9,11 +9,19 @@ public sealed class MissionTests
     private static readonly DateTimeOffset Now = new(2026, 10, 5, 8, 0, 0, TimeSpan.Zero);
     private static readonly Guid VehicleId = Guid.Parse("10000000-0000-0000-0000-000000000001");
     private static readonly Guid DriverId = Guid.Parse("20000000-0000-0000-0000-000000000001");
-
     public static IEnumerable<object[]> Transitions()
     {
         foreach (var state in Enum.GetValues<MissionStatus>())
-            foreach (var operation in new[] { "Schedule", "Assign", "Start", "Complete", "Cancel" })
+            foreach (var operation in new[]
+            {
+                "Schedule",
+                "Assign",
+                "Start",
+                "Complete",
+                "Cancel"
+            }
+
+            )
                 yield return [state, operation];
     }
 
@@ -47,6 +55,7 @@ public sealed class MissionTests
             Assert.Equal(before, Snapshot(mission));
             return;
         }
+
         var expected = operation switch
         {
             "Schedule" => MissionStatus.Scheduled,
@@ -59,7 +68,8 @@ public sealed class MissionTests
         Assert.Equal(expected, mission.Status);
         Assert.Equal(expected is MissionStatus.Assigned or MissionStatus.InProgress, mission.HasActiveReservation);
         Assert.Equal(operation == "Schedule" || state != expected, changed);
-        if (!changed) Assert.Equal(before, Snapshot(mission));
+        if (!changed)
+            Assert.Equal(before, Snapshot(mission));
     }
 
     [Fact]
@@ -90,8 +100,7 @@ public sealed class MissionTests
     {
         var mission = InState(MissionStatus.Assigned);
         var before = Snapshot(mission);
-        Assert.Throws<BusinessRuleValidationException>(() => mission.Assign(
-            changeVehicle ? Guid.NewGuid() : VehicleId, changeVehicle ? DriverId : Guid.NewGuid()));
+        Assert.Throws<BusinessRuleValidationException>(() => mission.Assign(changeVehicle ? Guid.NewGuid() : VehicleId, changeVehicle ? DriverId : Guid.NewGuid()));
         Assert.Equal(before, Snapshot(mission));
     }
 
@@ -102,8 +111,7 @@ public sealed class MissionTests
     {
         var mission = InState(MissionStatus.Scheduled);
         var before = Snapshot(mission);
-        Assert.Throws<BusinessRuleValidationException>(() => mission.Assign(
-            emptyVehicle ? Guid.Empty : VehicleId, emptyVehicle ? DriverId : Guid.Empty));
+        Assert.Throws<BusinessRuleValidationException>(() => mission.Assign(emptyVehicle ? Guid.Empty : VehicleId, emptyVehicle ? DriverId : Guid.Empty));
         Assert.Equal(before, Snapshot(mission));
     }
 
@@ -126,8 +134,7 @@ public sealed class MissionTests
         mission.Schedule(scheduled, Now);
         Assert.Equal(TimeSpan.Zero, mission.ScheduledTime!.Value.Offset);
         Assert.Equal(Now.AddHours(1), mission.ScheduledTime);
-        Assert.Throws<BusinessRuleValidationException>(() => mission.Schedule(
-            Now.ToOffset(TimeSpan.FromHours(-5)), Now));
+        Assert.Throws<BusinessRuleValidationException>(() => mission.Schedule(Now.ToOffset(TimeSpan.FromHours(-5)), Now));
     }
 
     [Fact]
@@ -142,8 +149,7 @@ public sealed class MissionTests
     [Fact]
     public void Equal_locations_are_valid_and_capacity_accepts_positive_boundaries()
     {
-        var mission = Mission.Create(Guid.NewGuid(), MissionLocation.Create(" تهران "),
-            MissionLocation.Create("تهران"), RequiredCapacity.Create(int.MaxValue));
+        var mission = Mission.Create(Guid.NewGuid(), MissionLocation.Create(" تهران "), MissionLocation.Create("تهران"), RequiredCapacity.Create(int.MaxValue));
         Assert.Equal(mission.Origin, mission.Destination);
         Assert.Equal(int.MaxValue, mission.RequiredCapacity.Kilograms);
         Assert.Equal(1, RequiredCapacity.Create(1).Kilograms);
@@ -155,32 +161,34 @@ public sealed class MissionTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("  ")]
-    public void Empty_location_is_rejected(string? location)
-        => Assert.Throws<BusinessRuleValidationException>(() => MissionLocation.Create(location));
-
+    public void Empty_location_is_rejected(string? location) => Assert.Throws<BusinessRuleValidationException>(() => MissionLocation.Create(location));
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
-    public void Nonpositive_capacity_is_rejected(int capacity)
-        => Assert.Throws<BusinessRuleValidationException>(() => RequiredCapacity.Create(capacity));
-
-    private static Mission Create() => Mission.Create(Guid.NewGuid(), MissionLocation.Create("تهران"),
-        MissionLocation.Create("شیراز"), RequiredCapacity.Create(1000));
-
+    public void Nonpositive_capacity_is_rejected(int capacity) => Assert.Throws<BusinessRuleValidationException>(() => RequiredCapacity.Create(capacity));
+    private static Mission Create() => Mission.Create(Guid.NewGuid(), MissionLocation.Create("تهران"), MissionLocation.Create("شیراز"), RequiredCapacity.Create(1000));
     private static Mission InState(MissionStatus status)
     {
         var mission = Create();
-        if (status == MissionStatus.Draft) return mission;
+        if (status == MissionStatus.Draft)
+            return mission;
         mission.Schedule(Now.AddHours(1), Now);
-        if (status == MissionStatus.Scheduled) return mission;
+        if (status == MissionStatus.Scheduled)
+            return mission;
         mission.Assign(VehicleId, DriverId);
-        if (status == MissionStatus.Assigned) return mission;
-        if (status == MissionStatus.Cancelled) { mission.Cancel(); return mission; }
+        if (status == MissionStatus.Assigned)
+            return mission;
+        if (status == MissionStatus.Cancelled)
+        {
+            mission.Cancel();
+            return mission;
+        }
+
         mission.Start();
-        if (status == MissionStatus.Completed) mission.Complete();
+        if (status == MissionStatus.Completed)
+            mission.Complete();
         return mission;
     }
 
-    private static object Snapshot(Mission m) => (m.Status, m.ScheduledTime, m.AssignedVehicleId,
-        m.AssignedDriverId, m.HasActiveReservation, m.Origin, m.Destination, m.RequiredCapacity);
+    private static object Snapshot(Mission m) => (m.Status, m.ScheduledTime, m.AssignedVehicleId, m.AssignedDriverId, m.HasActiveReservation, m.Origin, m.Destination, m.RequiredCapacity);
 }

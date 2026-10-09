@@ -1,7 +1,6 @@
 using System.Reflection;
 
 namespace FleetCompany.FleetManagement.Api.Hosting;
-
 /// <summary>
 /// The assemblies whose message handlers this host owns. Discovery is explicit: an assembly that is
 /// not listed here is never scanned, and this host registers no catch-all handler or route policy.
@@ -12,11 +11,5 @@ namespace FleetCompany.FleetManagement.Api.Hosting;
 /// </summary>
 public static class HandlerAssemblies
 {
-    public static IReadOnlyList<Assembly> All { get; } =
-    [
-        FleetCompany.FleetManagement.Modules.Fleet.AssemblyReference.Assembly,
-        FleetCompany.FleetManagement.Modules.Drivers.AssemblyReference.Assembly,
-        FleetCompany.FleetManagement.Modules.Operations.AssemblyReference.Assembly,
-        FleetCompany.FleetManagement.Modules.Administration.AssemblyReference.Assembly,
-    ];
+    public static IReadOnlyList<Assembly> All { get; } = [FleetCompany.FleetManagement.Modules.Fleet.AssemblyReference.Assembly, FleetCompany.FleetManagement.Modules.Drivers.AssemblyReference.Assembly, FleetCompany.FleetManagement.Modules.Operations.AssemblyReference.Assembly, FleetCompany.FleetManagement.Modules.Administration.AssemblyReference.Assembly,];
 }

@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
+
 namespace FleetCompany.FleetManagement.Modules.Operations.Infrastructure.Persistence;
 
 public sealed class MissionConfiguration : IEntityTypeConfiguration<Mission>
 {
+    public const string ActiveVehicleUniqueIndex = "ux_active_mission_vehicle";
+    public const string ActiveDriverUniqueIndex = "ux_active_mission_driver";
     public void Configure(EntityTypeBuilder<Mission> builder)
     {
         builder.ToTable("missions", "operations");
@@ -17,8 +20,8 @@ public sealed class MissionConfiguration : IEntityTypeConfiguration<Mission>
         builder.Property(x => x.ScheduledTime).HasColumnType("timestamp with time zone");
         builder.Property(x => x.AssignedVehicleId);
         builder.Property(x => x.AssignedDriverId);
-        builder.HasIndex(x => x.AssignedVehicleId).IsUnique().HasDatabaseName("ux_active_mission_vehicle").HasFilter("\"Status\" IN (3,4)");
-        builder.HasIndex(x => x.AssignedDriverId).IsUnique().HasDatabaseName("ux_active_mission_driver").HasFilter("\"Status\" IN (3,4)");
+        builder.HasIndex(x => x.AssignedVehicleId).IsUnique().HasDatabaseName(ActiveVehicleUniqueIndex).HasFilter("\"Status\" IN (3,4)");
+        builder.HasIndex(x => x.AssignedDriverId).IsUnique().HasDatabaseName(ActiveDriverUniqueIndex).HasFilter("\"Status\" IN (3,4)");
         builder.Ignore(x => x.HasActiveReservation);
         builder.Ignore(x => x.DomainEvents);
         builder.Ignore(x => x.IntegrationEvents);

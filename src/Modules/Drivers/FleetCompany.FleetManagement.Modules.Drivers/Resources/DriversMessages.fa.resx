@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
@@ -20,5 +20,8 @@
   </data>
   <data name="drivers.limit_invalid">
     <value>تعداد باید بین ۱ تا ۲۰۰ باشد.</value>
+  </data>
+  <data name="drivers.driver_not_found" xml:space="preserve">
+    <value>راننده پیدا نشد.</value>
   </data>
 </root>

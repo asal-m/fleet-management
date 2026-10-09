@@ -5,6 +5,7 @@ using FleetCompany.FleetManagement.Modules.Operations.Application.Ports;
 using FleetCompany.FleetManagement.Modules.Operations.Application.Validators;
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
 using Xunit;
+
 namespace FleetCompany.FleetManagement.Application.Tests;
 
 public sealed class CreateMissionTests
@@ -13,8 +14,7 @@ public sealed class CreateMissionTests
     public async Task Creation_stages_one_draft_with_normalized_locations_without_committing()
     {
         var repository = new Repository();
-        var result = await new CreateMissionHandler(repository, new TestAuditor()).Handle(
-            new CreateMission(" تهران ", " شیراز ", 1000), new NoCommit(), default);
+        var result = await new CreateMissionHandler(repository, new TestAuditor()).Handle(new CreateMission(" تهران ", " شیراز ", 1000), new NoCommit(), default);
         Assert.True(result.IsSuccess);
         var mission = Assert.Single(repository.Added);
         Assert.NotEqual(Guid.Empty, mission.Id);
@@ -27,22 +27,23 @@ public sealed class CreateMissionTests
         Assert.Null(mission.AssignedDriverId);
         Assert.False(mission.HasActiveReservation);
     }
+
     [Fact]
     public async Task Invalid_domain_values_do_not_stage_partial_creation()
     {
         var repository = new Repository();
-        await Assert.ThrowsAsync<BusinessRuleValidationException>(() => new CreateMissionHandler(repository, new TestAuditor()).Handle(
-            new CreateMission("A", "B", 0), new NoCommit(), default));
+        await Assert.ThrowsAsync<BusinessRuleValidationException>(() => new CreateMissionHandler(repository, new TestAuditor()).Handle(new CreateMission("A", "B", 0), new NoCommit(), default));
         Assert.Empty(repository.Added);
     }
+
     [Fact]
     public async Task Cancellation_before_execution_does_not_stage_a_mission()
     {
         var repository = new Repository();
-        await Assert.ThrowsAsync<OperationCanceledException>(() => new CreateMissionHandler(repository, new TestAuditor()).Handle(
-            new CreateMission("A", "B", 1), new NoCommit(), new CancellationToken(true)));
+        await Assert.ThrowsAsync<OperationCanceledException>(() => new CreateMissionHandler(repository, new TestAuditor()).Handle(new CreateMission("A", "B", 1), new NoCommit(), new CancellationToken(true)));
         Assert.Empty(repository.Added);
     }
+
     [Fact]
     public void Validator_enforces_shape_and_accepts_equal_locations()
     {
@@ -52,15 +53,17 @@ public sealed class CreateMissionTests
         Assert.True(validator.Validate(new CreateMission(" تهران ", "تهران", int.MaxValue)).IsValid);
         Assert.True(validator.Validate(new CreateMission(new string('A', 500), "B", 1)).IsValid);
     }
+
     private sealed class Repository : IMissionRepository
     {
         public Task<Mission?> FindAsync(Guid id, CancellationToken ct) => throw new NotSupportedException();
         public List<Mission> Added { get; } = [];
+
         public void Add(Mission mission) => Added.Add(mission);
     }
+
     private sealed class NoCommit : IUnitOfWork
     {
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-            => throw new InvalidOperationException("Only middleware may commit.");
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => throw new InvalidOperationException("Only middleware may commit.");
     }
 }

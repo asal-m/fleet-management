@@ -10,13 +10,24 @@ namespace FleetCompany.FleetManagement.Application.Tests;
 public sealed class RegisterVehicleTests
 {
     [Theory]
+    [InlineData(null)]
+    [InlineData((VehicleBaseStatus)99)]
+    public async Task Direct_handler_rejects_missing_or_unknown_status_without_staging(VehicleBaseStatus? status)
+    {
+        var repository = new FakeRepository();
+        var result = await new RegisterVehicleHandler(repository, new TestCoordinator()).Handle(new RegisterVehicle("AB-123", "TRUCK", 1000, status), new NoCommitUnitOfWork(), default);
+        Assert.True(result.IsFailure);
+        Assert.Equal("VEHICLE_BASE_STATUS_INVALID", result.FailureDescriptor!.Identity.Code);
+        Assert.Empty(repository.Added);
+    }
+
+    [Theory]
     [InlineData(VehicleBaseStatus.Active)]
     [InlineData(VehicleBaseStatus.Inactive)]
     public async Task Registration_normalizes_and_stages_one_vehicle_without_committing(VehicleBaseStatus status)
     {
         var repository = new FakeRepository();
-        var result = await new RegisterVehicleHandler(repository, new TestCoordinator()).Handle(
-            new RegisterVehicle(" ab-۱۲۳ ", " truck ", 1000, status), new NoCommitUnitOfWork(), default);
+        var result = await new RegisterVehicleHandler(repository, new TestCoordinator()).Handle(new RegisterVehicle(" ab-۱۲۳ ", " truck ", 1000, status), new NoCommitUnitOfWork(), default);
         Assert.True(result.IsSuccess);
         var vehicle = Assert.Single(repository.Added);
         Assert.NotEqual(Guid.Empty, vehicle.Id);
@@ -29,9 +40,11 @@ public sealed class RegisterVehicleTests
     [Fact]
     public async Task Duplicate_plate_returns_conflict_without_staging_vehicle()
     {
-        var repository = new FakeRepository { Exists = true };
-        var result = await new RegisterVehicleHandler(repository, new TestCoordinator()).Handle(
-            new RegisterVehicle("AB-123", "TRUCK", 1000, VehicleBaseStatus.Active), new NoCommitUnitOfWork(), default);
+        var repository = new FakeRepository
+        {
+            Exists = true
+        };
+        var result = await new RegisterVehicleHandler(repository, new TestCoordinator()).Handle(new RegisterVehicle("AB-123", "TRUCK", 1000, VehicleBaseStatus.Active), new NoCommitUnitOfWork(), default);
         Assert.True(result.IsFailure);
         Assert.Empty(repository.Added);
     }
@@ -47,22 +60,19 @@ public sealed class RegisterVehicleTests
     [Theory]
     [InlineData(VehicleBaseStatus.Active)]
     [InlineData(VehicleBaseStatus.Inactive)]
-    public void Validator_accepts_explicit_valid_status(VehicleBaseStatus status)
-        => Assert.True(new RegisterVehicleValidator().Validate(new RegisterVehicle("AB-۱۲۳", " truck ", 1, status)).IsValid);
-
+    public void Validator_accepts_explicit_valid_status(VehicleBaseStatus status) => Assert.True(new RegisterVehicleValidator().Validate(new RegisterVehicle("AB-۱۲۳", " truck ", 1, status)).IsValid);
     private sealed class FakeRepository : IVehicleRepository
     {
         public Task<Vehicle?> FindAsync(Guid id, CancellationToken ct) => throw new NotSupportedException();
         public bool Exists { get; init; }
         public List<Vehicle> Added { get; } = [];
-        public Task<bool> PlateExistsAsync(PlateNumber plateNumber, CancellationToken cancellationToken)
-            => Task.FromResult(Exists);
+
+        public Task<bool> PlateExistsAsync(PlateNumber plateNumber, CancellationToken cancellationToken) => Task.FromResult(Exists);
         public void Add(Vehicle vehicle) => Added.Add(vehicle);
     }
 
     private sealed class NoCommitUnitOfWork : IUnitOfWork
     {
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-            => throw new InvalidOperationException("Handler must not commit; transaction middleware owns commit.");
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => throw new InvalidOperationException("Handler must not commit; transaction middleware owns commit.");
     }
 }

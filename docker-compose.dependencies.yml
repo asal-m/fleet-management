@@ -1,31 +1,21 @@
-name: fleetmanagement-local
+name: fleetmanagement-dependencies
 services:
+  bootstrap:
+    extends: {file: docker-compose.yml, service: bootstrap}
   postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: fleet_management
-      POSTGRES_USER: ${FLEET_POSTGRES_USER:?Run scripts/Start-LocalDependencies.ps1}
-      POSTGRES_PASSWORD: ${FLEET_POSTGRES_PASSWORD:?Run scripts/Start-LocalDependencies.ps1}
-    ports:
-      - "127.0.0.1:55432:5432"
-    volumes:
-      - fleet-postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 2s
-      timeout: 3s
-      retries: 30
+    extends: {file: docker-compose.yml, service: postgres}
+    ports: !override ["127.0.0.1:${FLEET_DEPENDENCIES_POSTGRES_PORT:-56432}:5432"]
   redis:
-    image: redis:7-alpine
+    extends: {file: docker-compose.yml, service: redis}
+    ports: !override ["127.0.0.1:${FLEET_DEPENDENCIES_REDIS_PORT:-57379}:6379"]
+    # Redis has no persistence; avoid the image's unused anonymous /data volume after down.
+    tmpfs: ["/data"]
+  identity:
+    extends: {file: docker-compose.yml, service: identity}
     environment:
-      REDIS_PASSWORD: ${FLEET_REDIS_PASSWORD:?Run scripts/Start-LocalDependencies.ps1}
-    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
-    ports:
-      - "127.0.0.1:56379:6379"
-    healthcheck:
-      test: ["CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep -q PONG"]
-      interval: 2s
-      timeout: 3s
-      retries: 30
+      Identity__Issuer: http://127.0.0.1:${FLEET_DEPENDENCIES_IDENTITY_PORT:-56480}
+    ports: !override ["127.0.0.1:${FLEET_DEPENDENCIES_IDENTITY_PORT:-56480}:8080"]
 volumes:
   fleet-postgres:
+  fleet-configuration:
+  fleet-identity:

@@ -1,4 +1,5 @@
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
+
 namespace FleetCompany.FleetManagement.Domain.Tests;
 // Domain fixtures only. Runtime eligibility always comes from verified module Contracts under a lock.
 public static class MissionTestAssignmentExtensions

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using FleetCompany.FleetManagement.Infrastructure.Persistence;
 
 namespace FleetCompany.FleetManagement.Api.Hosting;
-
 /// <summary>
 /// What this host means by "alive" and by "ready".
 /// </summary>
@@ -19,7 +18,7 @@ namespace FleetCompany.FleetManagement.Api.Hosting;
 /// serving.
 /// </para>
 /// <para>
-/// Add a check for a dependency the host cannot work without, tagged <see cref="Ready"/>. Leave out a
+/// Add a check for a dependency the host cannot work without, tagged <see cref = "Ready"/>. Leave out a
 /// dependency the host survives losing, such as a cache: a probe that fails takes the host out of
 /// rotation.
 /// </para>
@@ -28,15 +27,10 @@ public static class HostHealthChecks
 {
     /// <summary>The tag of a check that asks the process only.</summary>
     public const string Live = "live";
-
     /// <summary>The tag of a check that asks a dependency.</summary>
     public const string Ready = "ready";
-
     /// <summary>Registers the host's checks.</summary>
-    public static IHealthChecksBuilder AddHostHealthChecks(this IServiceCollection services) =>
-        services.AddHealthChecks()
-            .AddCheck("process", static () => HealthCheckResult.Healthy(), tags: [Live])
-            .AddCheck<DatabaseReadinessCheck>("database", tags: [Ready]);
+    public static IHealthChecksBuilder AddHostHealthChecks(this IServiceCollection services) => services.AddHealthChecks().AddCheck("process", static () => HealthCheckResult.Healthy(), tags: [Live]).AddCheck<DatabaseReadinessCheck>("database", tags: [Ready]);
 }
 
 /// <summary>Ready means the database answers.</summary>
@@ -45,14 +39,11 @@ public sealed class DatabaseReadinessCheck(IServiceScopeFactory scopes) : IHealt
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
-
         var scope = scopes.CreateAsyncScope();
         await using (scope.ConfigureAwait(false))
         {
             var database = scope.ServiceProvider.GetRequiredService<AppDbContext>().Database;
-            return await database.CanConnectAsync(cancellationToken).ConfigureAwait(false)
-                ? HealthCheckResult.Healthy()
-                : new HealthCheckResult(context.Registration.FailureStatus, "The database does not answer.");
+            return await database.CanConnectAsync(cancellationToken).ConfigureAwait(false) ? HealthCheckResult.Healthy() : new HealthCheckResult(context.Registration.FailureStatus, "The database does not answer.");
         }
     }
 }

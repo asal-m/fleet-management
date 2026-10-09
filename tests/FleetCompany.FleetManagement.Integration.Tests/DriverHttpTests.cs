@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using FleetCompany.FleetManagement.Infrastructure.Persistence;
 using FleetCompany.FleetManagement.Modules.Drivers.Domain.Drivers;
 using Xunit;
+
 namespace FleetCompany.FleetManagement.Integration.Tests;
 
 public sealed class DriverHttpTests
@@ -17,8 +18,13 @@ public sealed class DriverHttpTests
         await using var factory = new FleetTestHost();
         using var http = factory.CreateClient();
         var name = "DriverTest-" + Guid.NewGuid().ToString("N");
-        object Request(DriverStatus? status = DriverStatus.Active, string?[]? codes = null)
-            => new { firstName = name, lastName = " موزفری ", status, qualifications = codes ?? [" truck ", "TRUCK", "BUS"] };
+        object Request(DriverStatus? status = DriverStatus.Active, string?[]? codes = null) => new
+        {
+            firstName = name,
+            lastName = " موزفری ",
+            status,
+            qualifications = codes ?? [" truck ", "TRUCK", "BUS"]
+        };
         try
         {
             using var anonymous = await http.PostAsJsonAsync("/api/drivers/", Request());
@@ -27,22 +33,79 @@ public sealed class DriverHttpTests
             using var denied = await http.PostAsJsonAsync("/api/drivers/", Request());
             Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
             http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("FleetManager"));
-            foreach (var invalid in new[] { Request(null), Request(codes: []), Request(codes: ["BUS", "BAD-CODE"]) })
+            foreach (var invalid in new[]
+            {
+                Request(null),
+                Request(codes: []),
+                Request(codes: ["BUS", "BAD-CODE"])
+            }
+
+            )
             {
                 using var response = await http.PostAsJsonAsync("/api/drivers/", invalid);
                 Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             }
+
+            foreach (var invalidStatus in new[]
+            {
+                Request(null),
+                Request((DriverStatus)99),
+                new
+                {
+                    firstName = name,
+                    lastName = "Test",
+                    qualifications = new[]
+                    {
+                        "TRUCK"
+                    }
+                }
+            }
+
+            )
+            {
+                using var response = await http.PostAsJsonAsync("/api/drivers/", invalidStatus);
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                Assert.Contains("DRIVER_STATUS_INVALID", await response.Content.ReadAsStringAsync());
+            }
+
             using (var scope = factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 Assert.Equal(0, await db.Set<Driver>().CountAsync(x => x.FirstName == DriverName.Create(name)));
             }
-            foreach (var status in new[] { DriverStatus.Active, DriverStatus.Inactive })
+
+            foreach (var status in new[]
+            {
+                DriverStatus.Active,
+                DriverStatus.Inactive
+            }
+
+            )
             {
                 using var response = await http.PostAsJsonAsync("/api/drivers/", Request(status));
                 Assert.Equal(HttpStatusCode.Created, response.StatusCode);
                 using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 var id = body.RootElement.GetProperty("id").GetGuid();
+                Assert.Equal(status.ToString(), body.RootElement.GetProperty("status").GetString());
+                Assert.Equal(status.ToString(), body.RootElement.GetProperty("statusName").GetString());
+                Assert.Equal($"/api/drivers/{id}", response.Headers.Location?.OriginalString);
+                http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("Operator"));
+                using (var get = await http.GetAsync(response.Headers.Location))
+                {
+                    Assert.Equal(HttpStatusCode.OK, get.StatusCode);
+                    using var restored = JsonDocument.Parse(await get.Content.ReadAsStringAsync());
+                    Assert.Equal(id, restored.RootElement.GetProperty("id").GetGuid());
+                    Assert.Equal(status.ToString(), restored.RootElement.GetProperty("status").GetString());
+                    Assert.Equal(status.ToString(), restored.RootElement.GetProperty("statusName").GetString());
+                }
+
+                using (var missing = await http.GetAsync($"/api/drivers/{Guid.NewGuid()}"))
+                {
+                    Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+                    Assert.Contains("DRIVER_NOT_FOUND", await missing.Content.ReadAsStringAsync());
+                }
+
+                http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("FleetManager"));
                 Assert.Equal(2, body.RootElement.GetProperty("qualifications").GetArrayLength());
                 using var scope = factory.Services.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

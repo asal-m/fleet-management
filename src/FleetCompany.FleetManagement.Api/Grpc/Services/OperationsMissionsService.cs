@@ -7,21 +7,32 @@ using FleetCompany.FleetManagement.Modules.Operations.Application;
 using FleetCompany.FleetManagement.Modules.Operations.Application.Queries;
 using FleetCompany.FleetManagement.Modules.Operations.Application.Views;
 using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
+
 namespace FleetCompany.FleetManagement.Api.Grpc.Services;
 
 public sealed class OperationsMissionsService(IMessageBus bus) : OperationsMissions.OperationsMissionsBase
 {
     public override async Task<GetMissionReply> GetMission(GetMissionRequest request, ServerCallContext context)
     {
-        if (!Guid.TryParse(request.Id, out var id)) throw new MPCore.Application.Results.ResultFailureException(OperationsFailures.InvalidMissionId());
+        if (!Guid.TryParse(request.Id, out var id))
+            throw new MPCore.Application.Results.ResultFailureException(OperationsFailures.InvalidMissionId());
         var result = await bus.InvokeAsync<Result<MissionDetailsView>>(new GetMission(id), context.CancellationToken);
-        result.ThrowIfFailure(); return new() { Mission = Map(result.Value) };
+        result.ThrowIfFailure();
+        return new()
+        {
+            Mission = Map(result.Value)
+        };
     }
+
     public override async Task<GetActiveMissionsReply> GetActiveMissions(GetActiveMissionsRequest request, ServerCallContext context)
     {
         var result = await bus.InvokeAsync<Result<IReadOnlyList<MissionDetailsView>>>(new GetActiveMissions(request.HasLimit ? request.Limit : 50), context.CancellationToken);
-        result.ThrowIfFailure(); var reply = new GetActiveMissionsReply(); reply.Missions.AddRange(result.Value.Select(Map)); return reply;
+        result.ThrowIfFailure();
+        var reply = new GetActiveMissionsReply();
+        reply.Missions.AddRange(result.Value.Select(Map));
+        return reply;
     }
+
     private static MissionDetails Map(MissionDetailsView view)
     {
         var details = new MissionDetails
@@ -41,9 +52,12 @@ public sealed class OperationsMissionsService(IMessageBus bus) : OperationsMissi
                 _ => throw new InvalidOperationException("Unexpected stored Mission status.")
             }
         };
-        if (view.ScheduledTime.HasValue) details.ScheduledTime = Timestamp.FromDateTimeOffset(view.ScheduledTime.Value);
-        if (view.AssignedVehicleId.HasValue) details.AssignedVehicleId = view.AssignedVehicleId.Value.ToString();
-        if (view.AssignedDriverId.HasValue) details.AssignedDriverId = view.AssignedDriverId.Value.ToString();
+        if (view.ScheduledTime.HasValue)
+            details.ScheduledTime = Timestamp.FromDateTimeOffset(view.ScheduledTime.Value);
+        if (view.AssignedVehicleId.HasValue)
+            details.AssignedVehicleId = view.AssignedVehicleId.Value.ToString();
+        if (view.AssignedDriverId.HasValue)
+            details.AssignedDriverId = view.AssignedDriverId.Value.ToString();
         return details;
     }
 }

@@ -25,9 +25,8 @@ public sealed class HttpDependenciesFactAttribute : FactAttribute
 {
     public HttpDependenciesFactAttribute()
     {
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION"))
-            || string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLEET_TEST_REDIS_CONNECTION")))
-            Skip = "Run scripts/Start-LocalDependencies.ps1 -RunTests with both PostgreSQL and Redis.";
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION")) || string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLEET_TEST_REDIS_CONNECTION")))
+            Skip = "Integration dependencies absent. Run dotnet run --project tools/VerifyTests/VerifyTests.csproj --configuration Release for the full suite.";
     }
 }
 
@@ -39,34 +38,59 @@ public sealed class VehicleHttpTests
         await using var factory = new FleetTestHost();
         using var client = factory.CreateClient();
         var plate = "HTTP-" + Guid.NewGuid().ToString("N")[..20];
-        var request = new { plateNumber = plate, typeCode = " truck ", capacityKilograms = 1000, baseStatus = 1 };
+        var request = new
+        {
+            plateNumber = plate,
+            typeCode = " truck ",
+            capacityKilograms = 1000,
+            baseStatus = 1
+        };
         try
         {
             using var anonymous = await client.PostAsJsonAsync("/api/fleet/vehicles/", request);
             await AssertProblem(anonymous, HttpStatusCode.Unauthorized);
-
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("Operator"));
             using var forbidden = await client.PostAsJsonAsync("/api/fleet/vehicles/", request);
             await AssertProblem(forbidden, HttpStatusCode.Forbidden);
             await AssertCount(factory, plate, 0);
-
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("FleetManager", wrongAudience: true));
             using var wrongAudience = await client.PostAsJsonAsync("/api/fleet/vehicles/", request);
             await AssertProblem(wrongAudience, HttpStatusCode.Unauthorized);
-
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("FleetManager", wrongSignature: true));
             using var wrongSignature = await client.PostAsJsonAsync("/api/fleet/vehicles/", request);
             await AssertProblem(wrongSignature, HttpStatusCode.Unauthorized);
-
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("FleetManager"));
-            using var invalid = await client.PostAsJsonAsync("/api/fleet/vehicles/", new
-            {
-                plateNumber = plate,
-                typeCode = "TRUCK",
-                capacityKilograms = 0
-            });
+            using var invalid = await client.PostAsJsonAsync("/api/fleet/vehicles/", new { plateNumber = plate, typeCode = "TRUCK", capacityKilograms = 0 });
             await AssertProblem(invalid, HttpStatusCode.BadRequest);
             await AssertCount(factory, plate, 0);
+            foreach (var includeStatus in new[]
+            {
+                false,
+                true
+            }
+
+            )
+                foreach (var status in new int?[]
+                {
+                    null,
+                    99
+                }
+
+                )
+                {
+                    var invalidStatus = new Dictionary<string, object?>
+                    {
+                        ["plateNumber"] = plate,
+                        ["typeCode"] = "TRUCK",
+                        ["capacityKilograms"] = 1000
+                    };
+                    if (includeStatus)
+                        invalidStatus["baseStatus"] = status;
+                    using var response = await client.PostAsJsonAsync("/api/fleet/vehicles/", invalidStatus);
+                    await AssertProblem(response, HttpStatusCode.BadRequest);
+                    Assert.Contains("VEHICLE_BASE_STATUS_INVALID", await response.Content.ReadAsStringAsync());
+                    await AssertCount(factory, plate, 0);
+                }
 
             using var created = await client.PostAsJsonAsync("/api/fleet/vehicles/", request);
             Assert.Equal(HttpStatusCode.Created, created.StatusCode);
@@ -75,7 +99,6 @@ public sealed class VehicleHttpTests
             Assert.Equal("TRUCK", representation.RootElement.GetProperty("typeCode").GetString());
             Assert.False(representation.RootElement.GetProperty("isUnderMaintenance").GetBoolean());
             await AssertCount(factory, plate, 1);
-
             Assert.NotNull(created.Headers.Location);
             var location = created.Headers.Location!.ToString();
             using var fetched = await client.GetAsync(location);
@@ -83,7 +106,6 @@ public sealed class VehicleHttpTests
             using var fetchedBody = JsonDocument.Parse(await fetched.Content.ReadAsStringAsync());
             Assert.Equal(representation.RootElement.GetProperty("id").GetGuid(), fetchedBody.RootElement.GetProperty("id").GetGuid());
             Assert.Equal(plate.ToUpperInvariant(), fetchedBody.RootElement.GetProperty("plateNumber").GetString());
-
             client.DefaultRequestHeaders.Authorization = null;
             using var anonymousRead = await client.GetAsync(location);
             await AssertProblem(anonymousRead, HttpStatusCode.Unauthorized);
@@ -97,9 +119,7 @@ public sealed class VehicleHttpTests
             await AssertProblem(missing, HttpStatusCode.NotFound);
             Assert.Contains("VEHICLE_NOT_FOUND", await missing.Content.ReadAsStringAsync());
             await AssertCount(factory, plate, 1);
-
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.Token("FleetManager"));
-
             using var duplicate = await client.PostAsJsonAsync("/api/fleet/vehicles/", request);
             await AssertProblem(duplicate, HttpStatusCode.Conflict);
             Assert.Contains("PLATE_NUMBER_ALREADY_REGISTERED", await duplicate.Content.ReadAsStringAsync());
@@ -131,35 +151,35 @@ public sealed class VehicleHttpTests
     }
 }
 
-public sealed class FleetTestHost : WebApplicationFactory<Program>
+public sealed class FleetTestHost(Microsoft.EntityFrameworkCore.Diagnostics.DbCommandInterceptor? sqlObserver = null, Action<IServiceCollection>? configureServices = null) : WebApplicationFactory<Program>
 {
     private const string TestIssuer = "https://fleet-test-issuer.example.test";
     private const string TestAudience = "fleet-http-tests";
     private readonly RSA signingKey = RSA.Create(2048);
     private readonly RSA unrelatedKey = RSA.Create(2048);
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        if (configureServices is not null)
+            builder.ConfigureTestServices(configureServices);
+        if (sqlObserver is not null)
+            builder.ConfigureTestServices(services => services.AddDbContext<AppDbContext>(options => options.AddInterceptors(sqlObserver)));
         builder.UseEnvironment("Testing");
         // Match the Linux container's console logging; the Windows EventLog provider
         // has an OS handle lifetime unrelated to this in-memory test host.
         builder.ConfigureLogging(logging => logging.ClearProviders().AddJsonConsole(options => options.IncludeScopes = true));
-        builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
-            new Dictionary<string, string?>
-            {
-                ["Security:Authority"] = TestIssuer,
-                ["Security:Audiences:0"] = TestAudience,
-                ["ConnectionStrings:PostgreSql"] = Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION"),
-                ["ConnectionStrings:Redis"] = Environment.GetEnvironmentVariable("FLEET_TEST_REDIS_CONNECTION"),
-                ["Transport:EnableOpenApi"] = "false",
-                ["Transport:EnableGrpcReflection"] = "false"
-            }));
+        builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["Security:Authority"] = TestIssuer, ["Security:Audiences:0"] = TestAudience, ["ConnectionStrings:PostgreSql"] = Environment.GetEnvironmentVariable("FLEET_TEST_POSTGRES_CONNECTION"), ["ConnectionStrings:Redis"] = Environment.GetEnvironmentVariable("FLEET_TEST_REDIS_CONNECTION"), ["Transport:EnableOpenApi"] = "false", ["Transport:EnableGrpcReflection"] = "false" }));
         builder.ConfigureTestServices(services => services.PostConfigureAll<JwtBearerOptions>(options =>
         {
             // Test metadata replaces network discovery only. The production JWT signature,
             // issuer, audience, expiry and role validation are not replaced or disabled.
-            var metadata = new OpenIdConnectConfiguration { Issuer = TestIssuer };
-            var publicKey = new RsaSecurityKey(signingKey.ExportParameters(false)) { KeyId = "fleet-test-key" };
+            var metadata = new OpenIdConnectConfiguration
+            {
+                Issuer = TestIssuer
+            };
+            var publicKey = new RsaSecurityKey(signingKey.ExportParameters(false))
+            {
+                KeyId = "fleet-test-key"
+            };
             metadata.SigningKeys.Add(publicKey);
             options.ConfigurationManager = new StaticConfigurationManager<OpenIdConnectConfiguration>(metadata);
         }));
@@ -168,20 +188,31 @@ public sealed class FleetTestHost : WebApplicationFactory<Program>
     public string Token(string role, bool wrongAudience = false, bool wrongSignature = false)
     {
         var now = DateTime.UtcNow;
-        var key = new RsaSecurityKey(wrongSignature ? unrelatedKey : signingKey) { KeyId = "fleet-test-key" };
-        var payload = new JwtPayload(TestIssuer, wrongAudience ? "other-api" : TestAudience, null,
-            now.AddMinutes(-1), now.AddMinutes(5), now);
+        var key = new RsaSecurityKey(wrongSignature ? unrelatedKey : signingKey)
+        {
+            KeyId = "fleet-test-key"
+        };
+        var payload = new JwtPayload(TestIssuer, wrongAudience ? "other-api" : TestAudience, null, now.AddMinutes(-1), now.AddMinutes(5), now);
         payload["sub"] = "fleet-http-test-user";
         payload["preferred_username"] = "fleet-http-test-user";
-        payload["realm_access"] = new Dictionary<string, object> { ["roles"] = new[] { role } };
-        return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(
-            new JwtHeader(new SigningCredentials(key, SecurityAlgorithms.RsaSha256)), payload));
+        payload["realm_access"] = new Dictionary<string, object>
+        {
+            ["roles"] = new[]
+            {
+                role
+            }
+        };
+        return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(new JwtHeader(new SigningCredentials(key, SecurityAlgorithms.RsaSha256)), payload));
     }
 
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        if (disposing) { signingKey.Dispose(); unrelatedKey.Dispose(); }
+        if (disposing)
+        {
+            signingKey.Dispose();
+            unrelatedKey.Dispose();
+        }
     }
 
     public override async ValueTask DisposeAsync()

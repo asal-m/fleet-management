@@ -3,27 +3,24 @@ using Npgsql;
 using FleetCompany.FleetManagement.Infrastructure.Persistence;
 
 namespace FleetCompany.FleetManagement.Api.Hosting;
-
 // Local Compose provisioning only. Production migrations run under a separately managed owner.
 public static class LocalDatabaseBootstrap
 {
     public static async Task RunAsync(WebApplication app)
     {
-        if (!app.Configuration.GetValue<bool>("Database:ApplyMigrations")) return;
+        if (!app.Configuration.GetValue<bool>("Database:ApplyMigrations"))
+            return;
         if (!app.Environment.IsDevelopment())
             throw new InvalidOperationException("Automatic database provisioning is Development-only.");
-        var migrationConnection = app.Configuration.GetConnectionString("MigrationPostgreSql")
-            ?? throw new InvalidOperationException("A separate migration connection is required.");
+        var migrationConnection = app.Configuration.GetConnectionString("MigrationPostgreSql") ?? throw new InvalidOperationException("A separate migration connection is required.");
         var runtime = new NpgsqlConnectionStringBuilder(app.Configuration.GetConnectionString("PostgreSql"));
         var owner = new NpgsqlConnectionStringBuilder(migrationConnection);
         if (runtime.Username == owner.Username || string.IsNullOrEmpty(runtime.Password))
             throw new InvalidOperationException("Runtime and migration database accounts must be different.");
-
         await using var scope = app.Services.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         context.Database.SetConnectionString(migrationConnection);
         await context.Database.MigrateAsync();
-
         await using var connection = new NpgsqlConnection(migrationConnection);
         await connection.OpenAsync();
         // Password is a bound parameter, never embedded in SQL, configuration files or log output.

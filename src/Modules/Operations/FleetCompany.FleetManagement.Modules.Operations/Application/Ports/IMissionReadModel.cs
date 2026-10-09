@@ -1,4 +1,5 @@
 using FleetCompany.FleetManagement.Modules.Operations.Application.Views;
+
 namespace FleetCompany.FleetManagement.Modules.Operations.Application.Ports;
 
 public interface IMissionReadModel

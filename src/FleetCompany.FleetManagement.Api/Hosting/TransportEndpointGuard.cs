@@ -1,16 +1,13 @@
 using System.Globalization;
 
 namespace FleetCompany.FleetManagement.Api.Hosting;
-
 /// <summary>The transport surface this host was generated for.</summary>
 public enum TransportMode
 {
     /// <summary>Native gRPC over HTTP/2 only.</summary>
     Grpc,
-
     /// <summary>HTTP/JSON REST only.</summary>
     Rest,
-
     /// <summary>gRPC and REST from one host.</summary>
     Both
 }
@@ -31,13 +28,12 @@ public enum TransportMode
 public static class TransportEndpointGuard
 {
     /// <summary>Validates the configured Kestrel endpoints for the supplied transport mode.</summary>
-    /// <param name="configuration">The host configuration.</param>
-    /// <param name="mode">The generated transport mode.</param>
-    /// <exception cref="InvalidOperationException">The configuration cannot serve the transport.</exception>
+    /// <param name = "configuration">The host configuration.</param>
+    /// <param name = "mode">The generated transport mode.</param>
+    /// <exception cref = "InvalidOperationException">The configuration cannot serve the transport.</exception>
     public static void Validate(IConfiguration configuration, TransportMode mode)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-
         var configured = ReadEndpoints(configuration);
         var endpoints = configured;
         if (endpoints.Count == 0)
@@ -48,27 +44,19 @@ public static class TransportEndpointGuard
 
         var http2Capable = endpoints.Any(static endpoint => endpoint.ServesHttp2);
         var http1Capable = endpoints.Any(static endpoint => endpoint.AllowsHttp1);
-
         if (mode == TransportMode.Both && endpoints.Count == 1 && !endpoints[0].IsTls)
         {
-            throw new InvalidOperationException(
-                "Transport 'both' cannot be served from a single cleartext Kestrel endpoint. Configure " +
-                "one cleartext endpoint per protocol family (Rest: Http1AndHttp2, Grpc: Http2), or a " +
-                "single TLS endpoint where ALPN performs real negotiation.");
+            throw new InvalidOperationException("Transport 'both' cannot be served from a single cleartext Kestrel endpoint. Configure " + "one cleartext endpoint per protocol family (Rest: Http1AndHttp2, Grpc: Http2), or a " + "single TLS endpoint where ALPN performs real negotiation.");
         }
 
         if (mode is TransportMode.Both or TransportMode.Grpc && !http2Capable)
         {
-            throw new InvalidOperationException(
-                $"Transport '{Describe(mode)}' requires an HTTP/2-capable Kestrel endpoint. A cleartext " +
-                "endpoint must declare Protocols=Http2; a mixed cleartext endpoint serves HTTP/1.1 only.");
+            throw new InvalidOperationException($"Transport '{Describe(mode)}' requires an HTTP/2-capable Kestrel endpoint. A cleartext " + "endpoint must declare Protocols=Http2; a mixed cleartext endpoint serves HTTP/1.1 only.");
         }
 
         if (mode is TransportMode.Both or TransportMode.Rest && !http1Capable)
         {
-            throw new InvalidOperationException(
-                $"Transport '{Describe(mode)}' requires an HTTP/1.1-capable Kestrel endpoint. Declare " +
-                "Protocols=Http1 or Protocols=Http1AndHttp2 on the REST endpoint.");
+            throw new InvalidOperationException($"Transport '{Describe(mode)}' requires an HTTP/1.1-capable Kestrel endpoint. Declare " + "Protocols=Http1 or Protocols=Http1AndHttp2 on the REST endpoint.");
         }
 
         if (mode == TransportMode.Both)
@@ -83,10 +71,7 @@ public static class TransportEndpointGuard
     /// no Kestrel endpoint would silently 404 every request routed to it. That is turned into a boot
     /// failure here rather than a production outage.
     /// </summary>
-    private static void ValidatePortSeparation(
-        IConfiguration configuration,
-        List<TransportEndpoint> configured,
-        List<TransportEndpoint> effective)
+    private static void ValidatePortSeparation(IConfiguration configuration, List<TransportEndpoint> configured, List<TransportEndpoint> effective)
     {
         if (!configuration.GetValue("Transport:EnforcePortSeparation", true))
         {
@@ -97,26 +82,17 @@ public static class TransportEndpointGuard
         // protocol. There is no second port to separate, so the flag must be false.
         if (effective.Count == 1)
         {
-            throw new InvalidOperationException(
-                "Transport:EnforcePortSeparation must be false when 'both' is served from a single " +
-                "Kestrel endpoint. Under single-port TLS, ALPN performs the protocol negotiation and " +
-                "there is no second listener to bind endpoints to.");
+            throw new InvalidOperationException("Transport:EnforcePortSeparation must be false when 'both' is served from a single " + "Kestrel endpoint. Under single-port TLS, ALPN performs the protocol negotiation and " + "there is no second listener to bind endpoints to.");
         }
 
         var restPort = configuration.GetValue("Transport:RestPort", 8080);
         var grpcPort = configuration.GetValue("Transport:GrpcPort", 8081);
-
         if (restPort == grpcPort)
         {
-            throw new InvalidOperationException(
-                "Transport:RestPort and Transport:GrpcPort must differ when port separation is enforced.");
+            throw new InvalidOperationException("Transport:RestPort and Transport:GrpcPort must differ when port separation is enforced.");
         }
 
-        var listenerPorts = configured
-            .Where(static endpoint => endpoint.Port is not null)
-            .Select(static endpoint => endpoint.Port!.Value)
-            .ToHashSet();
-
+        var listenerPorts = configured.Where(static endpoint => endpoint.Port is not null).Select(static endpoint => endpoint.Port!.Value).ToHashSet();
         RequireConfiguredListener(listenerPorts, restPort, "Transport:RestPort");
         RequireConfiguredListener(listenerPorts, grpcPort, "Transport:GrpcPort");
     }
@@ -128,13 +104,8 @@ public static class TransportEndpointGuard
             return;
         }
 
-        var declared = listenerPorts.Count == 0
-            ? "none"
-            : string.Join(", ", listenerPorts.Order());
-        throw new InvalidOperationException(
-            $"{settingName} is {port}, which matches no configured Kestrel endpoint (declared: {declared}). " +
-            "Endpoints are bound to the listener port they are served from, so every endpoint mapped " +
-            "to this port would return 404.");
+        var declared = listenerPorts.Count == 0 ? "none" : string.Join(", ", listenerPorts.Order());
+        throw new InvalidOperationException($"{settingName} is {port}, which matches no configured Kestrel endpoint (declared: {declared}). " + "Endpoints are bound to the listener port they are served from, so every endpoint mapped " + "to this port would return 404.");
     }
 
     private static string Describe(TransportMode mode) => mode switch
@@ -143,7 +114,6 @@ public static class TransportEndpointGuard
         TransportMode.Rest => "rest",
         _ => "both"
     };
-
     private static List<TransportEndpoint> ReadEndpoints(IConfiguration configuration)
     {
         var result = new List<TransportEndpoint>();
@@ -167,7 +137,7 @@ public static class TransportEndpointGuard
 
     /// <summary>
     /// Reads the listening port from a Kestrel endpoint URL. Kestrel accepts wildcard hosts such as
-    /// <c>http://*:8080</c> and <c>http://+:8080</c>, which <see cref="Uri"/> cannot parse, so the
+    /// <c>http://*:8080</c> and <c>http://+:8080</c>, which <see cref = "Uri"/> cannot parse, so the
     /// authority is normalized before parsing.
     /// </summary>
     private static int? ReadPort(string url, bool isTls)
@@ -192,21 +162,10 @@ public static class TransportEndpointGuard
             return isTls ? 443 : 80;
         }
 
-        return int.TryParse(
-            authority[(portStart + 1)..],
-            NumberStyles.Integer,
-            CultureInfo.InvariantCulture,
-            out var port) && port is > 0 and <= 65535
-            ? port
-            : null;
+        return int.TryParse(authority[(portStart + 1)..], NumberStyles.Integer, CultureInfo.InvariantCulture, out var port) && port is > 0 and <= 65535 ? port : null;
     }
 
-    private sealed record TransportEndpoint(
-        string Name,
-        int? Port,
-        bool IsTls,
-        bool AllowsHttp1,
-        bool AllowsHttp2)
+    private sealed record TransportEndpoint(string Name, int? Port, bool IsTls, bool AllowsHttp1, bool AllowsHttp2)
     {
         /// <summary>
         /// A cleartext endpoint serves HTTP/2 only when it declares HTTP/2 exclusively; under TLS,

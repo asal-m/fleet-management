@@ -15,7 +15,6 @@ public sealed class VehicleCapacity : ValueObject
     }
 
     public static VehicleCapacity Create(int kilograms) => new(kilograms);
-
     protected override IEnumerable<object> GetEqualityComponents()
     {
         yield return Kilograms;

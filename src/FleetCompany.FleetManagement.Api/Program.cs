@@ -16,8 +16,30 @@ using FleetCompany.FleetManagement.Api.Rest.Endpoints;
 using MPCore.Transport.Http;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
+using System.Text.Json.Serialization;
+using FleetCompany.FleetManagement.Modules.Fleet.Domain.Vehicles;
+using FleetCompany.FleetManagement.Modules.Drivers.Domain.Drivers;
+using FleetCompany.FleetManagement.Modules.Operations.Domain.Missions;
+using FleetCompany.FleetManagement.Api.Rest;
+using FleetCompany.FleetManagement.Modules.Fleet.Infrastructure;
+using FleetCompany.FleetManagement.Modules.Drivers.Infrastructure;
+using FleetCompany.FleetManagement.Modules.Operations.Infrastructure;
+using System.Diagnostics;
+using FleetCompany.FleetManagement.Modules.Fleet.Resources;
+using FleetCompany.FleetManagement.Modules.Drivers.Resources;
+using FleetCompany.FleetManagement.Modules.Operations.Resources;
+using FleetCompany.FleetManagement.Modules.Administration.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // Named business states in responses; existing numeric request values remain supported.
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter<VehicleBaseStatus>());
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter<VehicleOperationalStatus>());
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter<DriverStatus>());
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter<MissionStatus>());
+});
 var localConfigurationFile = builder.Configuration["LocalEnvironment:ConfigurationFile"];
 if (!string.IsNullOrWhiteSpace(localConfigurationFile))
 {
@@ -28,24 +50,23 @@ if (!string.IsNullOrWhiteSpace(localConfigurationFile))
     builder.Configuration.AddEnvironmentVariables();
     builder.Configuration.AddCommandLine(args);
 }
+
 builder.Logging.AddJsonConsole(options => options.IncludeScopes = true);
 builder.Services.AddOpenTelemetry().WithTracing(tracing => tracing.AddSource("FleetCompany.FleetManagement.Business", "Npgsql"));
+builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter("FleetCompany.FleetManagement.Availability"));
 builder.Logging.Configure(options => options.ActivityTrackingOptions = ActivityTrackingOptions.TraceId | ActivityTrackingOptions.SpanId | ActivityTrackingOptions.ParentId);
-
 // Per-endpoint Kestrel "Protocols" values in appsettings.json are authoritative; no protocol is
 // forced globally.
 // A single cleartext Http1AndHttp2 endpoint cannot serve prior-knowledge h2c HTTP/2, so the
 // endpoint that carries binary RPC declares Http2 exclusively.
 const TransportMode HostTransport = TransportMode.Both;
 TransportEndpointGuard.Validate(builder.Configuration, HostTransport);
-
 builder.Services.AddMPCoreFoundation(new MPCoreObservabilityOptions
 {
     ServiceName = "FleetCompany.FleetManagement",
     ServiceNamespace = "FleetCompany",
     ServiceVersion = typeof(Program).Assembly.GetName().Version?.ToString(),
-    EnableOtlpExporter = builder.Configuration.GetValue("Observability:EnableOtlpExporter", false),
-    // Each signal has its own destination, sampling and redaction settings; see docs/architecture.md.
+    EnableOtlpExporter = builder.Configuration.GetValue("Observability:EnableOtlpExporter", false), // Each signal has its own destination, sampling and redaction settings; see docs/architecture.md.
     Signals = builder.Configuration.GetSection("Observability").Get<MPCoreObservabilitySignals>()
 });
 // Prometheus pull is a REST-listener surface. It carries no anonymous metadata: the scraper must
@@ -55,19 +76,19 @@ if (metricsScrapeEnabled)
 {
     builder.Services.AddMPCorePrometheusScrape();
 }
+
 // One registration per bounded-context module, each from its own project:
 //     builder.Services.AddBillingModule();
 // See src/Modules/README.md.
-
 // Failures reach the caller as message keys, rendered here in the caller's language: MP Core's own
 // messages ship in English and Persian, and each module adds its resource file. See
 // docs/architecture.md, "Business rules, validation and messages".
 builder.Services.AddMPCoreMessageCatalog(catalog =>
 {
-    catalog.AddResources<FleetCompany.FleetManagement.Modules.Fleet.Resources.FleetMessages>();
-    catalog.AddResources<FleetCompany.FleetManagement.Modules.Drivers.Resources.DriversMessages>();
-    catalog.AddResources<FleetCompany.FleetManagement.Modules.Operations.Resources.OperationsMessages>();
-    catalog.AddResources<FleetCompany.FleetManagement.Modules.Administration.Resources.AdministrationMessages>();
+    catalog.AddResources<FleetMessages>();
+    catalog.AddResources<DriversMessages>();
+    catalog.AddResources<OperationsMessages>();
+    catalog.AddResources<AdministrationMessages>();
 });
 // Input validators (FluentValidation) of every handler assembly. They run before the handler.
 foreach (var assembly in HandlerAssemblies.All)
@@ -79,8 +100,7 @@ foreach (var assembly in HandlerAssemblies.All)
 // administration are Product surfaces and are never implemented here.
 builder.Services.AddMPCoreBearerAuthentication(options =>
 {
-    options.Authority = builder.Configuration["Security:Authority"]
-        ?? throw new InvalidOperationException("Security:Authority is required.");
+    options.Authority = builder.Configuration["Security:Authority"] ?? throw new InvalidOperationException("Security:Authority is required.");
     options.RequireHttpsMetadata = builder.Configuration.GetValue("Security:RequireHttpsMetadata", true);
     foreach (var audience in builder.Configuration.GetSection("Security:Audiences").Get<string[]>() ?? [])
     {
@@ -112,36 +132,28 @@ builder.Services.AddMPCoreGatewayForwarding(options =>
         options.TrustedProxies.Add(proxy);
     }
 });
-
 // MP Core does not map the health probes, so it cannot enforce anonymous access to them. This host
 // maps them and therefore owns the decision, applied with AllowAnonymous() where they are mapped.
-var allowAnonymousHealthEndpoints =
-    builder.Configuration.GetValue("Security:AllowAnonymousHealthEndpoints", true);
+var allowAnonymousHealthEndpoints = builder.Configuration.GetValue("Security:AllowAnonymousHealthEndpoints", true);
 builder.Services.AddMPCoreAuthorization();
-
 // Description surfaces are opt-in and default to Development only: an OpenAPI document and gRPC
 // reflection describe the entire API to whoever can reach them.
-var enableOpenApi = DeveloperEndpoints.IsDescriptionSurfaceEnabled(
-    builder.Configuration, builder.Environment, "Transport:EnableOpenApi");
-var enableGrpcReflection = DeveloperEndpoints.IsDescriptionSurfaceEnabled(
-    builder.Configuration, builder.Environment, "Transport:EnableGrpcReflection");
-
+var enableOpenApi = DeveloperEndpoints.IsDescriptionSurfaceEnabled(builder.Configuration, builder.Environment, "Transport:EnableOpenApi");
+var enableGrpcReflection = DeveloperEndpoints.IsDescriptionSurfaceEnabled(builder.Configuration, builder.Environment, "Transport:EnableGrpcReflection");
 // A description surface is only reachable without a token in Development. Enabling one explicitly in
 // another environment keeps it behind the authenticated fallback: the flag says "expose it", not
 // "expose it to anyone".
 var anonymousDescriptionSurface = builder.Environment.IsDevelopment();
-
 // What "alive" and "ready" mean is the same on every transport: Hosting/HostHealthChecks.cs.
 builder.Services.AddHostHealthChecks();
-
 builder.Services.AddGrpc().AddMPCoreFailureHandling();
 // The empty service name is the whole host; "live" asks the process only.
-builder.Services.AddGrpcHealthChecks(options =>
-    options.Services.Map(HostHealthChecks.Live, static check => check.Tags.Contains(HostHealthChecks.Live)));
+builder.Services.AddGrpcHealthChecks(options => options.Services.Map(HostHealthChecks.Live, static check => check.Tags.Contains(HostHealthChecks.Live)));
 if (enableGrpcReflection)
 {
     builder.Services.AddGrpcReflection();
 }
+
 builder.Services.AddMPCoreHttpFailureHandling();
 builder.Services.AddMPCoreProblemDetailsSecurityResponses();
 if (enableOpenApi)
@@ -149,50 +161,50 @@ if (enableOpenApi)
     builder.Services.AddOpenApi();
 }
 
-var databaseConnection = builder.Configuration.GetConnectionString("PostgreSql")
-    ?? throw new InvalidOperationException("ConnectionStrings:PostgreSql is required.");
-var cacheConnection = builder.Configuration.GetConnectionString("Redis")
-    ?? throw new InvalidOperationException("ConnectionStrings:Redis is required for the selected cache.");
+var databaseConnection = builder.Configuration.GetConnectionString("PostgreSql") ?? throw new InvalidOperationException("ConnectionStrings:PostgreSql is required.");
+var cacheConnection = builder.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException("ConnectionStrings:Redis is required for the selected cache.");
 builder.Services.AddInfrastructure(databaseConnection, cacheConnection);
-FleetCompany.FleetManagement.Modules.Fleet.Infrastructure.FleetModuleRegistration.AddFleetModule<AppDbContext>(builder.Services);
-FleetCompany.FleetManagement.Modules.Drivers.Infrastructure.DriversModuleRegistration.AddDriversModule<AppDbContext>(builder.Services);
-FleetCompany.FleetManagement.Modules.Operations.Infrastructure.OperationsModuleRegistration.AddOperationsModule<AppDbContext>(builder.Services);
-builder.Services.AddHttpExceptionMapper<FleetCompany.FleetManagement.Api.Rest.VehicleExceptionMapper>();
+builder.Services.AddFleetModule<AppDbContext>();
+builder.Services.AddDriversModule<AppDbContext>();
+builder.Services.AddOperationsModule<AppDbContext>();
+builder.Services.AddHttpExceptionMapper<VehicleExceptionMapper>();
+builder.Services.AddSingleton<IGrpcExceptionMapper, VehicleExceptionMapper>();
 // AppDbContext is named here as the transaction owner, so a handler can depend on IUnitOfWork and
 // still run inside the Entity Framework transaction whose commit releases its outgoing messages.
-builder.Host.UseMPCoreWolverine<AppDbContext>(
-    new WolverineFoundationOptions
-    {
-        ServiceName = "FleetCompany.FleetManagement",
-        PersistenceConnectionString = databaseConnection,
-        PersistenceSchemaName = "wolverine",
-        // This project's own handlers are discovered from here, in addition to HandlerAssemblies.All.
-        ApplicationAssembly = typeof(Program).Assembly
-    },
-    options =>
-    {
-        // Handlers are discovered only in the assemblies this host names. Nothing is scanned
-        // implicitly and no catch-all policy exists; see Hosting/HandlerAssemblies.cs.
-        options.DiscoverHandlersIn(HandlerAssemblies.All);
-        // A message whose validators fail never reaches its handler; the caller receives MP Core's
-        // validation failure with one violation per field.
-        options.UseMPCoreFluentValidation();
-    });
-
+builder.Host.UseMPCoreWolverine<AppDbContext>(new WolverineFoundationOptions
+{
+    ServiceName = "FleetCompany.FleetManagement",
+    PersistenceConnectionString = databaseConnection,
+    PersistenceSchemaName = "wolverine", // This project's own handlers are discovered from here, in addition to HandlerAssemblies.All.
+    ApplicationAssembly = typeof(Program).Assembly
+}, options =>
+   {
+       // Handlers are discovered only in the assemblies this host names. Nothing is scanned
+       // implicitly and no catch-all policy exists; see Hosting/HandlerAssemblies.cs.
+       options.DiscoverHandlersIn(HandlerAssemblies.All);
+       // A message whose validators fail never reaches its handler; the caller receives MP Core's
+       // validation failure with one violation per field.
+       options.UseMPCoreFluentValidation();
+   });
 var app = builder.Build();
-
 // ADR-007 pipeline order. UseAuthentication always precedes UseAuthorization, and both follow
 // UseRouting so the authenticated fallback policy sees resolved endpoint metadata.
 // Forwarded headers come first, so everything after it sees the scheme and client the gateway saw.
 app.UseMPCoreGatewayForwarding();
 app.UseMPCoreProblemDetails();
 app.UseMPCoreRequestContext();
-var businessTrace = new System.Diagnostics.ActivitySource("FleetCompany.FleetManagement.Business");
+var businessTrace = new ActivitySource("FleetCompany.FleetManagement.Business");
 app.Use(async (context, next) =>
 {
     using var span = businessTrace.StartActivity("Transport." + context.Request.Method);
-    context.Response.Headers["X-Trace-Id"] = System.Diagnostics.Activity.Current?.TraceId.ToString();
+    context.Response.Headers["X-Trace-Id"] = Activity.Current?.TraceId.ToString();
     await next(context);
+    if (context.GetEndpoint() is Microsoft.AspNetCore.Routing.RouteEndpoint route)
+    {
+        if (span is not null)
+            span.DisplayName = "Transport." + context.Request.Method + " " + route.RoutePattern.RawText;
+        span?.SetTag("http.route", route.RoutePattern.RawText);
+    }
 });
 app.UseForwardedIdentityHeaderGuard();
 if (enableOpenApi && anonymousDescriptionSurface)
@@ -214,17 +226,16 @@ app.UseRouting();
 app.UseTransportPortSeparation();
 app.UseAuthentication();
 app.UseAuthorization();
-
 await LocalDatabaseBootstrap.RunAsync(app);
 var grpcProbeEndpoint = app.MapGrpcService<PlatformProbeService>();
 var operationsGrpcEndpoint = app.MapGrpcService<OperationsMissionsService>().RequireAuthorization(MPCoreAuthorizationPolicies.RequireRole("Operator"));
-var fleetVehiclesGrpcEndpoint = app.MapGrpcService<FleetVehiclesService>()
-    .RequireAuthorization(MPCoreAuthorizationPolicies.RequireRole("FleetManager", "Operator"));
+var fleetVehiclesGrpcEndpoint = app.MapGrpcService<FleetVehiclesService>().RequireAuthorization(MPCoreAuthorizationPolicies.RequireRole("FleetManager", "Operator"));
 var grpcHealthEndpoint = app.MapGrpcHealthChecksService();
 if (allowAnonymousHealthEndpoints)
 {
     grpcHealthEndpoint.AllowAnonymous();
 }
+
 IEndpointConventionBuilder? grpcReflection = null;
 if (enableGrpcReflection)
 {
@@ -255,19 +266,9 @@ var vehicleEndpoints = app.MapVehicleEndpoints();
 var driverEndpoints = app.MapDriverEndpoints();
 var missionEndpoints = app.MapMissionEndpoints();
 var auditEndpoints = app.MapAuditEndpoints();
-var livenessEndpoint = app.MapHealthChecks(
-    "/health/live",
-    new HealthCheckOptions
-    {
-        Predicate = static check => check.Tags.Contains(HostHealthChecks.Live),
-        ResponseWriter = WriteAggregateStatusAsync
-    });
-var readinessEndpoint = app.MapHealthChecks(
-    "/health/ready",
-    new HealthCheckOptions { ResponseWriter = WriteAggregateStatusAsync });
-var startupEndpoint = app.MapHealthChecks(
-    "/health/startup",
-    new HealthCheckOptions { ResponseWriter = WriteAggregateStatusAsync });
+var livenessEndpoint = app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = static check => check.Tags.Contains(HostHealthChecks.Live), ResponseWriter = WriteAggregateStatusAsync });
+var readinessEndpoint = app.MapHealthChecks("/health/ready", new HealthCheckOptions { ResponseWriter = WriteAggregateStatusAsync });
+var startupEndpoint = app.MapHealthChecks("/health/startup", new HealthCheckOptions { ResponseWriter = WriteAggregateStatusAsync });
 if (allowAnonymousHealthEndpoints)
 {
     livenessEndpoint.AllowAnonymous();
@@ -305,7 +306,6 @@ if (app.Configuration.GetValue("Transport:EnforcePortSeparation", true))
 }
 
 await app.RunAsync();
-
 // Health responses expose the aggregate status word only. Check names, dependency hosts, durations
 // and exception text are never disclosed anonymously.
 static Task WriteAggregateStatusAsync(HttpContext context, HealthReport report)

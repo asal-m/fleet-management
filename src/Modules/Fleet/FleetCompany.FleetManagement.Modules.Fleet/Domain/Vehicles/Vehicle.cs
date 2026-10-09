@@ -17,15 +17,11 @@ public sealed class Vehicle : AggregateRoot<Guid>
     public VehicleCapacity Capacity { get; private set; }
     public VehicleBaseStatus BaseStatus { get; private set; }
     public bool IsUnderMaintenance { get; private set; }
-
     public VehicleOperationalStatus OperationalStatus => VehicleStatus.Resolve(BaseStatus, IsUnderMaintenance);
-
     // This checks only Fleet's own state, not Mission reservations in Operations.
-    public bool IsOperationalForAssignment => BaseStatus == VehicleBaseStatus.Active
-        && !IsUnderMaintenance;
+    public bool IsOperationalForAssignment => BaseStatus == VehicleBaseStatus.Active && !IsUnderMaintenance;
 
-    private Vehicle(Guid id, PlateNumber plateNumber, VehicleTypeCode typeCode,
-        VehicleCapacity capacity, VehicleBaseStatus baseStatus) : base(id)
+    private Vehicle(Guid id, PlateNumber plateNumber, VehicleTypeCode typeCode, VehicleCapacity capacity, VehicleBaseStatus baseStatus) : base(id)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(id, Guid.Empty);
         ArgumentNullException.ThrowIfNull(plateNumber);
@@ -38,10 +34,7 @@ public sealed class Vehicle : AggregateRoot<Guid>
         BaseStatus = baseStatus;
     }
 
-    public static Vehicle Register(Guid id, PlateNumber plateNumber, VehicleTypeCode typeCode,
-        VehicleCapacity capacity, VehicleBaseStatus baseStatus)
-        => new(id, plateNumber, typeCode, capacity, baseStatus);
-
+    public static Vehicle Register(Guid id, PlateNumber plateNumber, VehicleTypeCode typeCode, VehicleCapacity capacity, VehicleBaseStatus baseStatus) => new(id, plateNumber, typeCode, capacity, baseStatus);
     // Application must also coordinate the Operations reservation check in D10/D11.
     public void ChangeBaseStatus(VehicleBaseStatus status, bool hasActiveReservation)
     {

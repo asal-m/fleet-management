@@ -1,5 +1,4 @@
 namespace FleetCompany.FleetManagement.Api.Hosting;
-
 /// <summary>
 /// Registration for the developer-facing description surfaces: the OpenAPI document and its UI on
 /// REST, and gRPC server reflection.
@@ -20,7 +19,6 @@ public static class DeveloperEndpoints
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(environment);
-
         // GetValue<bool?> returns null for both "absent" and "unparseable", so anything that is not an
         // explicit true falls back to the environment. There is no path where a typo enables it.
         var configured = configuration.GetValue<bool?>(key);

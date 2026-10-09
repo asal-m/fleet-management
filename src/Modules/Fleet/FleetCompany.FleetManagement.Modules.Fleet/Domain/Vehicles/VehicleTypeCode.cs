@@ -16,7 +16,6 @@ public sealed class VehicleTypeCode : ValueObject
     }
 
     public static VehicleTypeCode Create(string? value) => new(value);
-
     protected override IEnumerable<object> GetEqualityComponents()
     {
         yield return Value;

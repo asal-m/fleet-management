@@ -9,7 +9,12 @@ public sealed class DriverTests
     [Fact]
     public void Registration_preserves_profile_and_deduplicates_normalized_qualifications()
     {
-        var codes = new List<QualificationCode> { QualificationCode.Create(" truck "), QualificationCode.Create("TRUCK"), QualificationCode.Create("van") };
+        var codes = new List<QualificationCode>
+        {
+            QualificationCode.Create(" truck "),
+            QualificationCode.Create("TRUCK"),
+            QualificationCode.Create("van")
+        };
         var driver = Register(DriverStatus.Active, codes);
         codes.Clear();
         Assert.Equal("فاطمه", driver.FirstName.Value);
@@ -32,9 +37,7 @@ public sealed class DriverTests
     [Theory]
     [InlineData(0)]
     [InlineData(3)]
-    public void Undefined_status_is_rejected(int status)
-        => Assert.Throws<BusinessRuleValidationException>(() => Register((DriverStatus)status, [QualificationCode.Create("BUS")]));
-
+    public void Undefined_status_is_rejected(int status) => Assert.Throws<BusinessRuleValidationException>(() => Register((DriverStatus)status, [QualificationCode.Create("BUS")]));
     [Fact]
     public void Empty_or_null_qualification_entries_are_rejected()
     {
@@ -49,9 +52,7 @@ public sealed class DriverTests
     [InlineData("TRUCK-BUS")]
     [InlineData("TRUCK BUS")]
     [InlineData("کامیون")]
-    public void Malformed_qualification_codes_are_rejected(string? code)
-        => Assert.Throws<BusinessRuleValidationException>(() => QualificationCode.Create(code));
-
+    public void Malformed_qualification_codes_are_rejected(string? code) => Assert.Throws<BusinessRuleValidationException>(() => QualificationCode.Create(code));
     [Fact]
     public void Name_and_code_length_boundaries_are_enforced_after_trimming()
     {
@@ -66,9 +67,6 @@ public sealed class DriverTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("  ")]
-    public void Empty_names_are_rejected(string? name)
-        => Assert.Throws<BusinessRuleValidationException>(() => DriverName.Create(name));
-
-    private static Driver Register(DriverStatus status, IEnumerable<QualificationCode> codes)
-        => Driver.Register(Guid.NewGuid(), DriverName.Create(" فاطمه "), DriverName.Create(" Mozafari "), status, codes);
+    public void Empty_names_are_rejected(string? name) => Assert.Throws<BusinessRuleValidationException>(() => DriverName.Create(name));
+    private static Driver Register(DriverStatus status, IEnumerable<QualificationCode> codes) => Driver.Register(Guid.NewGuid(), DriverName.Create(" فاطمه "), DriverName.Create(" Mozafari "), status, codes);
 }

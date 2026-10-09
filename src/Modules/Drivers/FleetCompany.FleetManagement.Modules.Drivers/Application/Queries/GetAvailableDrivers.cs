@@ -4,6 +4,7 @@ using FleetCompany.FleetManagement.Modules.Drivers.Contracts;
 using FleetCompany.FleetManagement.Modules.Operations.Contracts;
 using FleetCompany.FleetManagement.Modules.Drivers.Application.Views;
 using FleetCompany.FleetManagement.Modules.Drivers.Domain.Drivers;
+
 namespace FleetCompany.FleetManagement.Modules.Drivers.Application.Queries;
 
 public sealed record GetAvailableDrivers(int Limit = 50) : IQuery<Result<IReadOnlyList<RegisteredDriverView>>>;

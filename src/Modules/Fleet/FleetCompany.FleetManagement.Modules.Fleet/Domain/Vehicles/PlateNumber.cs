@@ -16,12 +16,10 @@ public sealed class PlateNumber : ValueObject
     }
 
     public static PlateNumber Create(string? value) => new(value);
-
     private static string? Normalize(string? value)
     {
         if (value is null)
             return null;
-
         var characters = value.Trim().ToUpperInvariant().ToCharArray();
         for (var index = 0; index < characters.Length; index++)
         {
